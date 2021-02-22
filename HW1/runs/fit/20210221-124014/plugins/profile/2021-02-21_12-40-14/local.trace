@@ -1,0 +1,40 @@
+
+QõL
+	/host:CPUõà
+
+tf_ComputeàÄ
+
+tf_ComputeÄ
+¨%¨%
+
+/device:GPU:0"Sõ¨%my_funcH€¨ß³P€²áí¤Z
+tracing_count1Z!
+tf_function_calltraced-nonXla"-õ¨%TFE_Py_ExecuteCancelableH şû§P€—ª˜"9õ¨%$EagerExecute: __inference_my_func_13HàòŞ„¨P ŒÙ">õ¨%)EagerLocalExecute: __inference_my_func_13H ÷›…¨PÀú•"2õ¨%EagerCopyToDeviceAndAddCacheKeyHà°ñ…¨P "0õ¨%ValidateInputTypeAndPlacementH ‡áü«PÀš"Fõ¨%EagerKernelExecuteHÀ³°ı«PàîÜ”Z
+	step_name0Z
+group_id0"Jõ¨%FunctionRunH€×¶ş«PÀÊwZ
+id-4628251867161180538Z
+group_id0"Rõ¨%ExecutorState::ProcessH ‹ÛÃ¬PàÃÄZ
+id-1Z
+iter_num0Z
+group_id0"8õ¨%_send_Identity_0:_SendHÀƒÖÉ¬PÀ„=Z
+group_id0"@õ¨%ExecutorDoneCallbackHà¸ŸË¬P€ÔaZ
+id-1Z
+group_id0"õ¨%tf.constantHÀÄ®P ²²	")õ¨%TFE_DeleteTensorHandleHàƒä¦®PÀÏ$",õ¨%TFE_Py_FastPathExecute_CHà¤µ²®Pàû¨")õ¨%TFE_DeleteTensorHandleH€¼ù¸®P "%õ¨%TFE_DeleteTensorHandleHÀõÎ¹®",õ¨%EagerExecute: LogicalAndHÀ³áº®P ¦¡"1õ¨%EagerLocalExecute: LogicalAndHÀèùº®P€ä‚"0õ¨%ValidateInputTypeAndPlacementHÀË¸Å®PÀš"5õ¨%EagerKernelExecuteH€›İÅ®P€—“Z
+group_id0"`õ¨%
+LogicalAndHÀÔ²Æ®PÀ¾ôZ"
+	long_nameLogicalAnd:LogicalAndZ
+group_id0Z
+is_eager1",õ¨%TFE_Py_FastPathExecute_CHàÒú…¯P€‹‚"*õ¨%EagerExecute: IdentityH ÜÖ‰¯P€ıè"/õ¨%EagerLocalExecute: IdentityH€„é‰¯P€ÈĞ"0õ¨%ValidateInputTypeAndPlacementH æ”¯P "5õ¨%EagerKernelExecuteH ›­¯P –€Z
+group_id0"Yõ¨%IdentityH …Ş¯Pà§Z
+	long_nameIdentity:IdentityZ
+group_id0Z
+is_eager1",õ¨%TFE_Py_FastPathExecute_CHÀ¶Ì”¯PÀŸ«"õ¨%tf.constantH€Ö¬°¯PÀï±")õ¨%TFE_DeleteTensorHandleH ¯Şµ¯Pà§"õ¨%tf.constantHÀ›ÈÂ¯Pà€“")õ¨%TFE_DeleteTensorHandleH€ğ‹Æ¯PÀš"õ¨%tf.constantH€ƒÄÍ¯P€›î")õ¨%TFE_DeleteTensorHandleHà¦ûÏ¯PÀš",õ¨%TFE_Py_ExecuteCancelableH€ØéÓ¯P Åê".õ¨%EagerExecute: WriteSummaryHà‘ğÕ¯P€¼¿"3õ¨%EagerLocalExecute: WriteSummaryH ¬üÕ¯P ”­"0õ¨%ValidateInputTypeAndPlacementHÀ­ñÜ¯PÀš"5õ¨%EagerKernelExecuteHàïİ¯P€©‡Z
+group_id0"fõ¨%WriteSummaryHÀÓİ¯P€Õ¥Z&
+	long_nameWriteSummary:WriteSummaryZ
+group_id0Z
+is_eager1")õ¨%TFE_DeleteTensorHandleHàÖ©å¯PàÜ*")õ¨%TFE_DeleteTensorHandleHÀèìå¯P€µ"%õ¨%TFE_DeleteTensorHandleH€¸‘æ¯"õ¨%tf.constantH€Óÿè¯P€Ã±")õ¨%TFE_DeleteTensorHandleH€ÂÏì¯PÀš")õ¨%TFE_DeleteTensorHandleH Ëúî¯Pà§")õ¨%TFE_DeleteTensorHandleHàšŸï¯PÀÏ$")õ¨%TFE_DeleteTensorHandleH ¤ûò¯Pà§"%õ¨%TFE_DeleteTensorHandleHàóŸó¯"dõÄExecutorState::ProcessH ¸§ù¬PÀ±ŸZ
+id-4628251867161180538Z
+iter_num0Z
+group_id0"TõàExecutorDoneCallbackH İÓ‚­P€Õ¥Z
+id-4628251867161180538Z
+group_id0

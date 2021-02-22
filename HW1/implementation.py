@@ -20,10 +20,19 @@ def regression_func(x, w, b):
     return: 
         y_hat: tf.Tensor with shape [n,]. y_hat = x * w + b (matrix multiplication)
     """
-    
-
-    # TODO: implement this function
     # consider these functions: `tf.matmul`, `tf.einsum`, `tf.squeeze` 
+
+    # Multivariable Regression:
+    # w = weight vector
+    # b = bias (y intercept in 2d case)
+
+    # f(x,y,z) = w1*x + w2*y + w3*z + b
+    # y_hat = (x*w) + b
+
+        #need to expand dims since w comes in as shape(2,) which is rank 1 (need at least rank 2) 
+    # y_hat = tf.squeeze(tf.einsum('ij,jk->ki',x,tf.expand_dims(w,axis=1))) + b 
+
+    y_hat = tf.tensordot(x, w, axes=1) + b
 
     return y_hat
 
@@ -41,9 +50,10 @@ def loss_func(y, y_hat):
         loss: tf.Tensor with shape (). loss = (y -  y_hat)^\top (y -  y_hat) 
 
     """
-
     # TODO: implement the function. 
     # Consider these functions: `tf.square`, `tf.reduce_sum`
+
+    loss = tf.reduce_sum(tf.square(y_hat - y))
 
     return loss
 
@@ -61,12 +71,32 @@ def train_lr(x, y, lamb):
     
     # TODO: implement the function.
     # initialize parameters w and b
-
+    w = tf.Variable([0.0])
+    b = tf.Variable(0.0)
 
     # set an optimizer
     # please check the documentation of tf.keras.optimizers.SGD
+    optim = tf.keras.optimizers.SGD(learning_rate = 0.001)
 
     # loop to optimize w and b 
+    for i in range(10):
+
+        with tf.GradientTape() as gt:
+            gt.watch([w, b])
+            y_hat = regression_func(x, w, b)
+
+        # dy_dwb = gt.gradient(y_hat, [w, b])
+        # print(dy_dwb)
+        dw = gt.gradient(y_hat,w)
+        # print(dw)
+        db = gt.gradient(y_hat,b)
+        # db = tf.Variable(0.0)
+
+        del gt
+
+        loss = loss_func(y, y_hat)
+
+        optim.apply_gradients(zip([dw,db],[w,b]))
 
 
     return w, b
