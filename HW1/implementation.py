@@ -29,7 +29,7 @@ def regression_func(x, w, b):
     # f(x,y,z) = w1*x + w2*y + w3*z + b
     # y_hat = (x*w) + b
 
-        #need to expand dims since w comes in as shape(2,) which is rank 1 (need at least rank 2) 
+    #need to expand dims since w comes in as shape(2,) which is rank 1 (need at least rank 2) 
     # y_hat = tf.squeeze(tf.einsum('ij,jk->ki',x,tf.expand_dims(w,axis=1))) + b 
 
     y_hat = tf.tensordot(x, w, axes=1) + b
@@ -79,22 +79,16 @@ def train_lr(x, y, lamb):
     optim = tf.keras.optimizers.SGD(learning_rate = 0.001)
 
     # loop to optimize w and b 
-    for i in range(10):
+    for i in range(1000):
 
         with tf.GradientTape() as gt:
             gt.watch([w, b])
             y_hat = regression_func(x, w, b)
+            loss = loss_func(y, y_hat)
 
-        # dy_dwb = gt.gradient(y_hat, [w, b])
-        # print(dy_dwb)
-        dw = gt.gradient(y_hat,w)
-        # print(dw)
-        db = gt.gradient(y_hat,b)
-        # db = tf.Variable(0.0)
+        dw, db = gt.gradient(loss, [w,b])
 
         del gt
-
-        loss = loss_func(y, y_hat)
 
         optim.apply_gradients(zip([dw,db],[w,b]))
 
