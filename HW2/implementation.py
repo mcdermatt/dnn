@@ -20,7 +20,7 @@ class DenseLayer(tf.keras.layers.Layer):
     Implement a dense layer 
     """
 
-    def __init__(self, input_dim, output_dim, activation, reg_weight, param_init=None):
+    def __init__(self, input_dim, output_dim, activation='sigmoid', reg_weight, param_init=None):
 
         """
         Initialize weights of the DenseLayer. In Tensorflow's implementation, the weight 
@@ -58,28 +58,41 @@ class DenseLayer(tf.keras.layers.Layer):
             param_init['W'] = np.random.random_sample((input_dim, output_dim)) 
             param_init['b'] = np.random.random_sample((output_dim, )) 
         else:
-            # Please do your own initialization
+            np.random.seed(69) #nice
+            param_init['W'] = np.random.random_sample((input_dim, output_dim)) 
+            param_init['b'] = np.random.random_sample((output_dim, ))
            
         
         # Initialize necessary variables
-       
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.W = param_init['W']
+        self.b = param_init['b']
+
+        if activation == 'sigmoid':
+	        self.activation = tf.math.sigmoid
+
+	    if activation == 'tanh':
+	    	self.activation = tf.math.tanh
+
+	    if activation == 'ReLu':
+	    	self.activation = tf.keras.activations.relu
+
 
     def call(self, inputs, training=None, mask=None):
         """
         This function implement the `call` function of the class's parent `tf.keras.layers.Layer`. Please 
         consult the documentation of this function from `tf.keras.layers.Layer`.
         """
-
         
         # Implement the linear transformation
-
+        outputs = inputs*self.W + self.b
 
         # Implement the activation function
-
+        outputs = self.activation(outputs)
 
         # check self.add_loss() to add the regularization term to the training objective
-
-
+        self.add_loss(tf.abs(tf.reduce_mean(outputs))) #stores loss for later use in backprop
 
         return outputs
         
