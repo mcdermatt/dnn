@@ -20,7 +20,7 @@ class DenseLayer(tf.keras.layers.Layer):
     Implement a dense layer 
     """
 
-    def __init__(self, input_dim, output_dim, activation='sigmoid', reg_weight, param_init=None):
+    def __init__(self, input_dim, output_dim, activation='sigmoid', reg_weight=1e-5, param_init=None):
 
         """
         Initialize weights of the DenseLayer. In Tensorflow's implementation, the weight 
@@ -69,30 +69,41 @@ class DenseLayer(tf.keras.layers.Layer):
         self.W = param_init['W']
         self.b = param_init['b']
 
+        #TODO add linear and softmax
         if activation == 'sigmoid':
 	        self.activation = tf.math.sigmoid
 
-	    if activation == 'tanh':
-	    	self.activation = tf.math.tanh
+        if activation == 'tanh':
+	        self.activation = tf.math.tanh
 
-	    if activation == 'ReLu':
-	    	self.activation = tf.keras.activations.relu
+        if activation == 'ReLu':
+            self.activation = tf.keras.activations.relu
 
 
     def call(self, inputs, training=None, mask=None):
         """
         This function implement the `call` function of the class's parent `tf.keras.layers.Layer`. Please 
         consult the documentation of this function from `tf.keras.layers.Layer`.
+
         """
         
-        # Implement the linear transformation
-        outputs = inputs*self.W + self.b
+        # Implement the linear transformation------------------
+        # outputs = inputs*self.W + self.b #NOT THIS(?)- don't want to output a vector
 
-        # Implement the activation function
+        #TODO- do I have a unique bias for each input to every node in a denselayer? (I think yes)
+        # want to take in inputs from each previous node and multiply by a weight and add a bias
+        # outputs = tf.tensordot(inputs,self.W, axes = 1) + b 
+        # outputs = tf.reduce_sum(inputs*self.W + self.b) #need multiple biases
+
+        outputs = tf.tensordot(inputs,tf.cast(self.W,float),axes=1) + self.b #works 
+        # test call with:
+        # den.call(tf.Variable([1.,2.,3...]))
+
+        # Implement the activation function---------------------
         outputs = self.activation(outputs)
 
-        # check self.add_loss() to add the regularization term to the training objective
-        self.add_loss(tf.abs(tf.reduce_mean(outputs))) #stores loss for later use in backprop
+        # check self.add_loss() to add the regularization term to the training objective-----------------
+        # self.add_loss(tf.abs(tf.reduce_mean(outputs))) #stores loss for later use in backprop
 
         return outputs
         
@@ -123,16 +134,25 @@ class Feedforward(tf.keras.Model):
         super(Feedforward, self).__init__()
 
 
-        # Add a contition to make the program robust 
+        # Add a contition to make the program robust ----------------------------------
         if not (depth - len(hidden_sizes)) == 1:
             raise(Exception('The depth of the network is ', depth, ', but `hidden_sizes` has ', len(hidden_sizes), ' numbers in it.'))
 
          
-        # install all connection layers except the last one
+        # install all connection layers except the last one ---------------------------
+        
+        #TODO- This seems super inefficient...
+        self.layers = []
+        for layer in range(depth-1):
+            
+            self.layers.append(DenseLayer(hidden_sizes[layer],hidden_sizes[layer+1]))
 
 
-
-        # decide the last layer according to the task type
+        # decide the last layer according to the task type -----------------------------
+        if task_type == 'regression':
+        	self.layers.append(DenseLayer(hidden_sizes[-1],1))
+       	if task_type == 'classification':
+       		self.layers.append(DenseLayer(hidden_sizes[-1],output_size))
 
 
 
