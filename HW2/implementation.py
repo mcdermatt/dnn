@@ -85,6 +85,7 @@ class DenseLayer(tf.keras.layers.Layer):
         This function implement the `call` function of the class's parent `tf.keras.layers.Layer`. Please 
         consult the documentation of this function from `tf.keras.layers.Layer`.
 
+        #TODO- do inputs need to be special tf object or can they just be a tensor?
         """
         
         # Implement the linear transformation------------------
@@ -142,17 +143,33 @@ class Feedforward(tf.keras.Model):
         # install all connection layers except the last one ---------------------------
         
         #TODO- This seems super inefficient...
-        self.layers = []
-        for layer in range(depth-1):
+        # self.layers = []
+        # for layer in range(depth-1):
             
-            self.layers.append(DenseLayer(hidden_sizes[layer],hidden_sizes[layer+1]))
+        #     self.layers.append(DenseLayer(hidden_sizes[layer],hidden_sizes[layer+1]))
 
+        self.model = tf.keras.Sequential()
+        #set input layers
+        if task_type == 'regression':
+            self.model.add(DenseLayer(1,hidden_sizes[0]))
+       	if task_type == 'classification':
+       	    self.model.add(DenseLayer(input_size,hidden_sizes[0]))
+
+       	#set hidden layers
+        for layer in range(1,depth-1): #TODO- double check this
+            self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer]))
 
         # decide the last layer according to the task type -----------------------------
+        # if task_type == 'regression':
+        # 	self.layers.append(DenseLayer(hidden_sizes[-1],1))
+       	# if task_type == 'classification':
+       	# 	self.layers.append(DenseLayer(hidden_sizes[-1],output_size))
+
+       	#set output layers
         if task_type == 'regression':
-        	self.layers.append(DenseLayer(hidden_sizes[-1],1))
+            self.model.add(DenseLayer(hidden_sizes[-1],1))
        	if task_type == 'classification':
-       		self.layers.append(DenseLayer(hidden_sizes[-1],output_size))
+       	    self.model.add(DenseLayer(hidden_sizes[-1],output_size))
 
 
 
@@ -165,10 +182,15 @@ class Feedforward(tf.keras.Model):
         # print a message from the network function. Please don't delete this line and count how many times this message is printed
         # It seems that every time the network is evaluated, the message should be printed. If so, then the message should be printed
         # for #batches times. However, you only see it printed once or twice, why? 
+
+        #TODO- answer this question
+
         print('I am in the network function!')
 
         # Now start implement this function and apply the neural network on the input 
-        outputs = None
+        # outputs = None
+
+        outputs = self.model(inputs) # test works with model(tf.Variable([1.,2.,3...]))
 
         return outputs
 
@@ -192,26 +214,66 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
       task_type: string, 'regression' or 'classification', the type of the learning task.
     """
 
-    # prepare the data to make sure the data type is correct. 
+    # prepare the data to make sure the data type is correct. -----------------------------
+
+	#convert numpy data from notebook to tensors
+    x_train = tf.convert_to_tensor(x_train) #training data x values    
+    y_train = tf.convert_to_tensor(y_train) #training data y values
+    x_val = tf.convert_to_tensor(x_val) #x values for testing    
+    y_val = tf.convert_to_tensor(y_val) #y values for testing
+
+    #TODO - figure out way to loop through data-> need to deal with many input points
+
+    # initialize a model with the Feedforward class ---------------------------------------
+
+    if task_type == 'regression':
+    	input_size = 1
+    	output_size = 1
+    if task_type == 'classification':
+    	input_size = x_train.shape[0] #TODO: double check this
+    	output_size = 10 #make this adjustabl -> should be 10 for MNIST dataset
+
+    model = Feedforward(input_size,depth,hidden_sizes,output_size,reg_weight,task_type)
+
+    # initialize an opimizer --------------------------------------------------------------
+    optim = tf.keras.optimizers.Adam(learning_rate = 0.0001)
+
     
+    # decide the loss for the learning problem --------------------------------------------
+    # loss = tf.keras.losses.mean_squared_error(y_train, y_pred)
 
-
-    # initialize a model with the Feedforward class 
-
-
-    # initialize an opimizer
-    
-
-    # decide the loss for the learning problem
-
-
-    # compile and train the model. Consider model.fit()
+    # compile and train the model. Consider model.fit() -----------------------------------
     # Note: model.fit() returns the training history. Please keep it and return it later
-    
+
+    loss = tf.keras.losses.mean_squared_error #was this -> need to specify what loss is in reference to
+
+    model.compile(optim,loss)
+    history = model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val)) 
+
+    # from scratch --- 
+    # #repeat process multiple times
+    # for epoch in range(num_train_epochs):
+
+    #     #enter entire dataset at once
+    #     y_pred = model(x_train)
+    #     loss = tf.keras.losses.mean_squared_error(y_train,y_pred)
 
 
+    # 	#loop through dataset (Do I need to do this???)
+    # 	# for i in range(tf.shape(x_train)[0]):
 
-    # return the model and the training history. We will print the training history
+    #  #        y_pred = model(x_train[i])
+    #  #        loss = tf.keras.losses.mean_squared_error(y_train, y_pred)
+    #  #        # model.compile(optim,loss) #TODO: figure out what this does
+
+    # return the model and the training history. We will print the training history -------
+
+    #TODO- BACKPROP
+
+    #TODO- fix this
+    # model.compile(optim,loss)
+    # history = model.fit()
+
     return model, history
 
-
+    #TODO visualize loss
