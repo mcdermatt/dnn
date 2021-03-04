@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 # tf.keras.losses.MSE(), tf.keras.losses.CategoricalCrossentropy(), tf.keras.Model.compile(), tf.keras.Model.fit()
 ##################################################################################################################
 
+#DEBUG:
+#   den.variables = []  -> my layers have 0 trainable parameters, this is why nothing is improving
+#       DenseLayer weights and biases are not actually connected to TF rn
 
 class DenseLayer(tf.keras.layers.Layer):
     """
@@ -66,8 +69,12 @@ class DenseLayer(tf.keras.layers.Layer):
         # Initialize necessary variables
         self.input_dim = input_dim
         self.output_dim = output_dim
-        self.W = param_init['W']
-        self.b = param_init['b']
+
+        self.kernel = self.add_weight("kernel", shape=[self.input_dim,self.output_dim]) #trying this
+
+        #was this
+        # self.W = param_init['W'] 
+        # self.b = param_init['b']
 
         #TODO add linear and softmax
         if activation == 'sigmoid':
@@ -96,7 +103,10 @@ class DenseLayer(tf.keras.layers.Layer):
         # outputs = tf.tensordot(inputs,self.W, axes = 1) + b 
         # outputs = tf.reduce_sum(inputs*self.W + self.b) #need multiple biases
 
-        outputs = tf.tensordot(inputs,tf.cast(self.W,float),axes=1) + self.b #works 
+        #trying this
+        outputs = tf.matmul(inputs, self.kernel)
+
+        # outputs = tf.tensordot(inputs,tf.cast(self.W,float),axes=1) + self.b #was this
         # test call with:
         # den.call(tf.Variable([1.,2.,3...]))
 
@@ -223,7 +233,7 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     model = Feedforward(input_size,depth,hidden_sizes,output_size,reg_weight,task_type)
 
     # initialize an opimizer --------------------------------------------------------------
-    optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
+    optim = tf.keras.optimizers.Adam(learning_rate = 0.01)
     
     # decide the loss for the learning problem --------------------------------------------
     # loss = tf.keras.losses.mean_squared_error(y_train, y_pred)
