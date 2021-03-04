@@ -17,13 +17,14 @@ import matplotlib.pyplot as plt
 #DEBUG:
 #   den.variables = []  -> my layers have 0 trainable parameters, this is why nothing is improving
 #       DenseLayer weights and biases are not actually connected to TF rn
+#	Add batch normalization
 
 class DenseLayer(tf.keras.layers.Layer):
     """
     Implement a dense layer 
     """
 
-    def __init__(self, input_dim, output_dim, activation='sigmoid', reg_weight=1e-5, param_init=None):
+    def __init__(self, input_dim, output_dim, activation='relu', reg_weight=1e-5, param_init=None):
 
         """
         Initialize weights of the DenseLayer. In Tensorflow's implementation, the weight 
@@ -70,7 +71,11 @@ class DenseLayer(tf.keras.layers.Layer):
         self.input_dim = input_dim
         self.output_dim = output_dim
 
-        self.kernel = self.add_weight("kernel", shape=[self.input_dim,self.output_dim]) #trying this
+        #TODO - get this working with random seed
+        self.kernel = self.add_weight("kernel", shape=[self.input_dim,self.output_dim])
+
+        #TODO - add bias try add_weight again??
+        self.bias = self.add_weight("bias",shape=[self.output_dim,])
 
         #was this
         # self.W = param_init['W'] 
@@ -104,11 +109,14 @@ class DenseLayer(tf.keras.layers.Layer):
         # outputs = tf.reduce_sum(inputs*self.W + self.b) #need multiple biases
 
         #trying this
-        outputs = tf.matmul(inputs, self.kernel)
+        # outputs = tf.matmul(inputs, self.kernel) #input: 
+        outputs = tf.matmul(inputs, self.kernel) + self.bias #input: 
 
-        # outputs = tf.tensordot(inputs,tf.cast(self.W,float),axes=1) + self.b #was this
-        # test call with:
-        # den.call(tf.Variable([1.,2.,3...]))
+
+        # worked mathematically but TF doesn't recognize for backprop
+        # outputs = tf.tensordot(inputs,tf.cast(self.W,float),axes=1) + self.b 
+        # 			test call with:
+        # 			den.call(tf.Variable([1.,2.,3...]))
 
         # Implement the activation function---------------------
         outputs = self.activation(outputs)
@@ -152,20 +160,20 @@ class Feedforward(tf.keras.Model):
         # install all connection layers except the last one ---------------------------
 
         #was this
-        self.model = tf.keras.Sequential() #keep sequential??
+        self.model = tf.keras.Sequential()
         #set input layers
         if task_type == 'regression':
             self.model.add(DenseLayer(1,hidden_sizes[0]))
        	if task_type == 'classification':
        	    self.model.add(DenseLayer(input_size,hidden_sizes[0]))
 
-       	#set hidden layers ~~~~~#TODO DEBUG~~~~~~~
+       	#set hidden layers
         for layer in range(1,depth-1):
             self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer]))
 
         # decide the last layer according to the task type
         if task_type == 'regression':
-            self.model.add(DenseLayer(hidden_sizes[-1],1))
+            self.model.add(DenseLayer(hidden_sizes[-1],1,activation='tanh'))
        	if task_type == 'classification':
        	    self.model.add(DenseLayer(hidden_sizes[-1],output_size))
 
@@ -233,19 +241,22 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     model = Feedforward(input_size,depth,hidden_sizes,output_size,reg_weight,task_type)
 
     # initialize an opimizer --------------------------------------------------------------
-    optim = tf.keras.optimizers.Adam(learning_rate = 0.01)
+    optim = tf.keras.optimizers.Adam(learning_rate = 0.0005)
     
     # decide the loss for the learning problem --------------------------------------------
-    # loss = tf.keras.losses.mean_squared_error(y_train, y_pred)
+    loss = tf.keras.losses.mean_squared_error #was this
+    # loss = tf.keras.losses.Huber
+    # loss = tf.keras.losses.MeanSquaredError
 
     # compile and train the model. Consider model.fit() -----------------------------------
     # Note: model.fit() returns the training history. Please keep it and return it later
 
-    loss = tf.keras.losses.mean_squared_error #was this -> need to specify what loss is in reference to
-    model.model.compile(optim,loss) #TODO -> model.model. vs model.
+
+    model.model.compile(optim,loss) #was this
+    # model.model.compile(optimizer='rmsprop')
 
     # return the model and the training history. We will print the training history -------
-    history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = 32,verbose=1) 
+    history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = 256,verbose=1) 
     # history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_split=0.5,verbose=1) 
 
     model.model.summary() #TODO -> found the bug(?) 0 TRAINABLE PARAMETERS
