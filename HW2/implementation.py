@@ -76,7 +76,7 @@ class DenseLayer(tf.keras.layers.Layer):
         if activation == 'tanh':
 	        self.activation = tf.math.tanh
 
-        if activation == 'ReLu':
+        if activation == 'relu':
             self.activation = tf.keras.activations.relu
 
 
@@ -134,43 +134,30 @@ class Feedforward(tf.keras.Model):
 
         super(Feedforward, self).__init__()
 
-
         # Add a contition to make the program robust ----------------------------------
         if not (depth - len(hidden_sizes)) == 1:
             raise(Exception('The depth of the network is ', depth, ', but `hidden_sizes` has ', len(hidden_sizes), ' numbers in it.'))
 
          
         # install all connection layers except the last one ---------------------------
-        
-        #TODO- This seems super inefficient...
-        # self.layers = []
-        # for layer in range(depth-1):
-            
-        #     self.layers.append(DenseLayer(hidden_sizes[layer],hidden_sizes[layer+1]))
 
-        self.model = tf.keras.Sequential()
+        #was this
+        self.model = tf.keras.Sequential() #keep sequential??
         #set input layers
         if task_type == 'regression':
             self.model.add(DenseLayer(1,hidden_sizes[0]))
        	if task_type == 'classification':
        	    self.model.add(DenseLayer(input_size,hidden_sizes[0]))
 
-       	#set hidden layers
-        for layer in range(1,depth-1): #TODO- double check this
+       	#set hidden layers ~~~~~#TODO DEBUG~~~~~~~
+        for layer in range(1,depth-1):
             self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer]))
 
-        # decide the last layer according to the task type -----------------------------
-        # if task_type == 'regression':
-        # 	self.layers.append(DenseLayer(hidden_sizes[-1],1))
-       	# if task_type == 'classification':
-       	# 	self.layers.append(DenseLayer(hidden_sizes[-1],output_size))
-
-       	#set output layers
+        # decide the last layer according to the task type
         if task_type == 'regression':
             self.model.add(DenseLayer(hidden_sizes[-1],1))
        	if task_type == 'classification':
        	    self.model.add(DenseLayer(hidden_sizes[-1],output_size))
-
 
 
     def call(self, inputs, training=None, mask=None):
@@ -236,8 +223,7 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     model = Feedforward(input_size,depth,hidden_sizes,output_size,reg_weight,task_type)
 
     # initialize an opimizer --------------------------------------------------------------
-    optim = tf.keras.optimizers.Adam(learning_rate = 0.0001)
-
+    optim = tf.keras.optimizers.Adam(learning_rate = 0.001)
     
     # decide the loss for the learning problem --------------------------------------------
     # loss = tf.keras.losses.mean_squared_error(y_train, y_pred)
@@ -246,33 +232,13 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     # Note: model.fit() returns the training history. Please keep it and return it later
 
     loss = tf.keras.losses.mean_squared_error #was this -> need to specify what loss is in reference to
-
-    model.compile(optim,loss)
-    history = model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val)) 
-
-    # from scratch --- 
-    # #repeat process multiple times
-    # for epoch in range(num_train_epochs):
-
-    #     #enter entire dataset at once
-    #     y_pred = model(x_train)
-    #     loss = tf.keras.losses.mean_squared_error(y_train,y_pred)
-
-
-    # 	#loop through dataset (Do I need to do this???)
-    # 	# for i in range(tf.shape(x_train)[0]):
-
-    #  #        y_pred = model(x_train[i])
-    #  #        loss = tf.keras.losses.mean_squared_error(y_train, y_pred)
-    #  #        # model.compile(optim,loss) #TODO: figure out what this does
+    model.model.compile(optim,loss) #TODO -> model.model. vs model.
 
     # return the model and the training history. We will print the training history -------
+    history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = 32,verbose=1) 
+    # history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_split=0.5,verbose=1) 
 
-    #TODO- BACKPROP
-
-    #TODO- fix this
-    # model.compile(optim,loss)
-    # history = model.fit()
+    model.model.summary() #TODO -> found the bug(?) 0 TRAINABLE PARAMETERS
 
     return model, history
 
