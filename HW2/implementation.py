@@ -91,6 +91,9 @@ class DenseLayer(tf.keras.layers.Layer):
         if activation == 'relu':
             self.activation = tf.keras.activations.relu
 
+        if activation == 'softmax':
+        	self.activation = tf.nn.softmax
+
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -175,7 +178,7 @@ class Feedforward(tf.keras.Model):
         if task_type == 'regression':
             self.model.add(DenseLayer(hidden_sizes[-1],1,activation='tanh'))
        	if task_type == 'classification':
-       	    self.model.add(DenseLayer(hidden_sizes[-1],output_size))
+       	    self.model.add(DenseLayer(hidden_sizes[-1],output_size,activation='softmax'))
 
 
     def call(self, inputs, training=None, mask=None):
@@ -234,14 +237,24 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     if task_type == 'regression':
     	input_size = 1
     	output_size = 1
+    	batch_size = 256
+    	LR = 0.0005
+
     if task_type == 'classification':
-    	input_size = x_train.shape[0] #TODO: double check this
-    	output_size = 10 #make this adjustabl -> should be 10 for MNIST dataset
+    	# input_size = x_train.shape[0] #TODO: fix this
+    	input_size = 784 #28x28 images
+    	output_size = 10 #should be 10 for MNIST dataset
+    	batch_size = 256 #128
+    	LR = 0.001
+
+    	#need to reclassify images as float (uint does not work with TF?)
+    	x_train = tf.cast(x_train, tf.float32)
+    	x_val = tf.cast(x_val, tf.float32)
 
     model = Feedforward(input_size,depth,hidden_sizes,output_size,reg_weight,task_type)
 
     # initialize an opimizer --------------------------------------------------------------
-    optim = tf.keras.optimizers.Adam(learning_rate = 0.0005)
+    optim = tf.keras.optimizers.Adam(learning_rate = LR)
     
     # decide the loss for the learning problem --------------------------------------------
     loss = tf.keras.losses.mean_squared_error #was this
@@ -252,14 +265,13 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     # Note: model.fit() returns the training history. Please keep it and return it later
 
 
-    model.model.compile(optim,loss) #was this
-    # model.model.compile(optimizer='rmsprop')
+    model.model.compile(optim,loss,metrics=['accuracy']) # need to specify metrics in tf 2.3
 
     # return the model and the training history. We will print the training history -------
-    history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = 256,verbose=1) 
+    history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = batch_size,verbose=1) 
     # history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_split=0.5,verbose=1) 
 
-    model.model.summary() #TODO -> found the bug(?) 0 TRAINABLE PARAMETERS
+    model.model.summary()
 
     return model, history
 
