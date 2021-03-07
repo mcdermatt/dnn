@@ -19,6 +19,10 @@ import matplotlib.pyplot as plt
 #       DenseLayer weights and biases are not actually connected to TF rn
 #	Add batch normalization
 
+#TODO:
+# 	Add batch normalization
+#	replace relu with leaky_relu
+
 class DenseLayer(tf.keras.layers.Layer):
     """
     Implement a dense layer 
@@ -90,6 +94,9 @@ class DenseLayer(tf.keras.layers.Layer):
 
         if activation == 'relu':
             self.activation = tf.keras.activations.relu
+
+        if activation == 'leaky_relu':
+        	self.activation = tf.nn.leaky_relu
 
         if activation == 'softmax':
         	self.activation = tf.nn.softmax
@@ -164,21 +171,26 @@ class Feedforward(tf.keras.Model):
 
         #was this
         self.model = tf.keras.Sequential()
-        #set input layers
+       
+        
         if task_type == 'regression':
+            #set input layers
             self.model.add(DenseLayer(1,hidden_sizes[0]))
-       	if task_type == 'classification':
-       	    self.model.add(DenseLayer(input_size,hidden_sizes[0]))
-
-       	#set hidden layers
-        for layer in range(1,depth-1):
-            self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer]))
-
-        # decide the last layer according to the task type
-        if task_type == 'regression':
+       	    #set hidden layers
+       	    for layer in range(1,depth-1):
+                self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer],activation='tanh'))
+            #set output layer
             self.model.add(DenseLayer(hidden_sizes[-1],1,activation='tanh'))
+
+
        	if task_type == 'classification':
-       	    self.model.add(DenseLayer(hidden_sizes[-1],output_size,activation='softmax'))
+       	    #set input layers
+       	    self.model.add(DenseLayer(input_size,hidden_sizes[0]))
+       	    #set hidden layers
+            for layer in range(1,depth-1):
+                self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer],activation='relu'))
+            #set output layer
+            self.model.add(DenseLayer(hidden_sizes[-1],output_size,activation='softmax'))
 
 
     def call(self, inputs, training=None, mask=None):
@@ -237,14 +249,14 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     if task_type == 'regression':
     	input_size = 1
     	output_size = 1
-    	batch_size = 256
-    	LR = 0.0005
+    	batch_size = 32
+    	LR = 0.0075
 
     if task_type == 'classification':
     	# input_size = x_train.shape[0] #TODO: fix this
     	input_size = 784 #28x28 images
     	output_size = 10 #should be 10 for MNIST dataset
-    	batch_size = 256 #128
+    	batch_size = 128
     	LR = 0.001
 
     	#need to reclassify images as float (uint does not work with TF?)
@@ -254,6 +266,7 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     model = Feedforward(input_size,depth,hidden_sizes,output_size,reg_weight,task_type)
 
     # initialize an opimizer --------------------------------------------------------------
+    #TODO - try different optimizers for different tasks
     optim = tf.keras.optimizers.Adam(learning_rate = LR)
     
     # decide the loss for the learning problem --------------------------------------------
