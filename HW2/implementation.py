@@ -75,17 +75,18 @@ class DenseLayer(tf.keras.layers.Layer):
         self.input_dim = input_dim
         self.output_dim = output_dim
 
-        #TODO - get this working with random seed
-        self.kernel = self.add_weight("kernel", shape=[self.input_dim,self.output_dim])
-
-        #TODO - add bias try add_weight again??
-        self.bias = self.add_weight("bias",shape=[self.output_dim,])
-
         #was this
-        # self.W = param_init['W'] 
-        # self.b = param_init['b']
+        # self.W = self.add_weight("W", shape=[self.input_dim,self.output_dim])
+        # self.b = self.add_weight("b",shape=[self.output_dim,])
 
-        #TODO add linear and softmax
+        # From updated assignment: 
+        self.W = tf.Variable(initial_value=param_init['W'], dtype='float32', trainable=True)
+        self.b = tf.Variable(initial_value=param_init['b'], dtype='float32', trainable=True)
+
+
+        if activation == 'linear':
+        	self.activation = tf.keras.activations.linear
+
         if activation == 'sigmoid':
 	        self.activation = tf.math.sigmoid
 
@@ -118,9 +119,14 @@ class DenseLayer(tf.keras.layers.Layer):
         # outputs = tf.tensordot(inputs,self.W, axes = 1) + b 
         # outputs = tf.reduce_sum(inputs*self.W + self.b) #need multiple biases
 
-        #trying this
-        # outputs = tf.matmul(inputs, self.kernel) #input: 
-        outputs = tf.matmul(inputs, self.kernel) + self.bias #input: 
+
+        #check if input tensor can be read by DenseLayer
+        #	need to have this so the autograder can check it
+        if len(tf.shape(inputs)) == 1:
+            inputs = tf.expand_dims(inputs,axis=0)
+
+        #was this
+        outputs = tf.matmul(inputs, self.W) + self.b #input: 
 
 
         # worked mathematically but TF doesn't recognize for backprop
@@ -175,7 +181,7 @@ class Feedforward(tf.keras.Model):
         
         if task_type == 'regression':
             #set input layers
-            self.model.add(DenseLayer(1,hidden_sizes[0]))
+            self.model.add(DenseLayer(1,hidden_sizes[0],activation='tanh'))
        	    #set hidden layers
        	    for layer in range(1,depth-1):
                 self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer],activation='tanh'))
@@ -249,8 +255,11 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     if task_type == 'regression':
     	input_size = 1
     	output_size = 1
-    	batch_size = 32
-    	LR = 0.0075
+    	batch_size = 8 #32
+    	LR = 0.0005
+    	loss = tf.keras.losses.MeanAbsoluteError()
+    	# loss = tf.keras.losses.mean_squared_error
+    	# loss = tf.keras.losses.MeanSquaredLogarithmicError()
 
     if task_type == 'classification':
     	# input_size = x_train.shape[0] #TODO: fix this
@@ -258,6 +267,7 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     	output_size = 10 #should be 10 for MNIST dataset
     	batch_size = 128
     	LR = 0.001
+    	loss = tf.keras.losses.mean_squared_error #was this
 
     	#need to reclassify images as float (uint does not work with TF?)
     	x_train = tf.cast(x_train, tf.float32)
@@ -265,12 +275,14 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
 
     model = Feedforward(input_size,depth,hidden_sizes,output_size,reg_weight,task_type)
 
+    #debug
+    model = model.model
+
     # initialize an opimizer --------------------------------------------------------------
     #TODO - try different optimizers for different tasks
     optim = tf.keras.optimizers.Adam(learning_rate = LR)
     
     # decide the loss for the learning problem --------------------------------------------
-    loss = tf.keras.losses.mean_squared_error #was this
     # loss = tf.keras.losses.Huber
     # loss = tf.keras.losses.MeanSquaredError
 
@@ -278,13 +290,13 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     # Note: model.fit() returns the training history. Please keep it and return it later
 
 
-    model.model.compile(optim,loss,metrics=['accuracy']) # need to specify metrics in tf 2.3
+    model.compile(optim,loss,metrics=['accuracy']) # need to specify metrics in tf 2.3
 
     # return the model and the training history. We will print the training history -------
-    history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = batch_size,verbose=1) 
+    history = model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = batch_size,verbose=1) 
     # history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_split=0.5,verbose=1) 
 
-    model.model.summary()
+    model.summary()
 
     return model, history
 
