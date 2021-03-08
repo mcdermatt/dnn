@@ -53,27 +53,34 @@ class DenseLayer(tf.keras.layers.Layer):
                         `param_init` to initialize your function. 
 
         """
-
-
+        #set memory growth to true (needed for my PC)
+        try:
+            physical_devices = tf.config.list_physical_devices('GPU') 
+            tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        except:
+        	pass
+        
         super(DenseLayer, self).__init__()
 
         # set initial values for weights and bias terms. 
         # Note: bad initializations may lead to bad performance later
-        param_init = dict(W=None, b=None)
+        # param_init = dict(W=None, b=None)
 
         if param_init == 'autograder':
             np.random.seed(137)
+            param_init = dict(W=None, b=None)
             param_init['W'] = np.random.random_sample((input_dim, output_dim)) 
             param_init['b'] = np.random.random_sample((output_dim, )) 
         else:
-            np.random.seed(69) #nice
+            # np.random.seed(69) #nice
+            param_init = dict(W=None, b=None)
             param_init['W'] = np.random.random_sample((input_dim, output_dim)) 
             param_init['b'] = np.random.random_sample((output_dim, ))
            
         
         # Initialize necessary variables
-        self.input_dim = input_dim
-        self.output_dim = output_dim
+        # self.input_dim = input_dim
+        # self.output_dim = output_dim
 
         #was this
         # self.W = self.add_weight("W", shape=[self.input_dim,self.output_dim])
@@ -122,8 +129,8 @@ class DenseLayer(tf.keras.layers.Layer):
 
         #check if input tensor can be read by DenseLayer
         #	need to have this so the autograder can check it
-        if len(tf.shape(inputs)) == 1:
-            inputs = tf.expand_dims(inputs,axis=0)
+        # if len(inputs.shape) == 1: #TODO make sure I need this
+            # inputs = tf.expand_dims(inputs,axis=0)
 
         #was this
         outputs = tf.matmul(inputs, self.W) + self.b #input: 
@@ -177,7 +184,6 @@ class Feedforward(tf.keras.Model):
 
         #was this
         self.model = tf.keras.Sequential()
-       
         
         if task_type == 'regression':
             #set input layers
@@ -191,7 +197,8 @@ class Feedforward(tf.keras.Model):
 
        	if task_type == 'classification':
        	    #set input layers
-       	    self.model.add(DenseLayer(input_size,hidden_sizes[0]))
+       	    self.model.add(tf.keras.layers.BatchNormalization())
+       	    self.model.add(DenseLayer(input_size,hidden_sizes[0],activation='relu'))
        	    #set hidden layers
             for layer in range(1,depth-1):
                 self.model.add(DenseLayer(hidden_sizes[layer-1],hidden_sizes[layer],activation='relu'))
@@ -255,19 +262,21 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     if task_type == 'regression':
     	input_size = 1
     	output_size = 1
-    	batch_size = 8 #32
-    	LR = 0.0005
-    	loss = tf.keras.losses.MeanAbsoluteError()
-    	# loss = tf.keras.losses.mean_squared_error
+    	batch_size = 64 #256
+    	LR = 0.01 #0.0075
+    	# loss = tf.keras.losses.MeanAbsoluteError()
+    	loss = tf.keras.losses.mean_squared_error
     	# loss = tf.keras.losses.MeanSquaredLogarithmicError()
 
     if task_type == 'classification':
-    	# input_size = x_train.shape[0] #TODO: fix this
+    	#TODO - batch normalization
     	input_size = 784 #28x28 images
     	output_size = 10 #should be 10 for MNIST dataset
     	batch_size = 128
     	LR = 0.001
     	loss = tf.keras.losses.mean_squared_error #was this
+    	# loss = tf.keras.losses.MeanAbsoluteError()
+
 
     	#need to reclassify images as float (uint does not work with TF?)
     	x_train = tf.cast(x_train, tf.float32)
