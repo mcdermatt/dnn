@@ -14,14 +14,6 @@ import matplotlib.pyplot as plt
 # tf.keras.losses.MSE(), tf.keras.losses.CategoricalCrossentropy(), tf.keras.Model.compile(), tf.keras.Model.fit()
 ##################################################################################################################
 
-#DEBUG:
-#   den.variables = []  -> my layers have 0 trainable parameters, this is why nothing is improving
-#       DenseLayer weights and biases are not actually connected to TF rn
-#	Add batch normalization
-
-#TODO:
-# 	Add batch normalization
-#	replace relu with leaky_relu
 
 class DenseLayer(tf.keras.layers.Layer):
     """
@@ -72,21 +64,11 @@ class DenseLayer(tf.keras.layers.Layer):
             param_init['W'] = np.random.random_sample((input_dim, output_dim)) 
             param_init['b'] = np.random.random_sample((output_dim, )) 
         else:
-            # np.random.seed(69) #nice
+            np.random.seed(69)
             param_init = dict(W=None, b=None)
             param_init['W'] = np.random.random_sample((input_dim, output_dim)) 
             param_init['b'] = np.random.random_sample((output_dim, ))
            
-        
-        # Initialize necessary variables
-        # self.input_dim = input_dim
-        # self.output_dim = output_dim
-
-        #was this
-        # self.W = self.add_weight("W", shape=[self.input_dim,self.output_dim])
-        # self.b = self.add_weight("b",shape=[self.output_dim,])
-
-        # From updated assignment: 
         self.W = tf.Variable(initial_value=param_init['W'], dtype='float32', trainable=True)
         self.b = tf.Variable(initial_value=param_init['b'], dtype='float32', trainable=True)
 
@@ -114,38 +96,13 @@ class DenseLayer(tf.keras.layers.Layer):
         """
         This function implement the `call` function of the class's parent `tf.keras.layers.Layer`. Please 
         consult the documentation of this function from `tf.keras.layers.Layer`.
-
-        #TODO- do inputs need to be special tf object or can they just be a tensor?
         """
         
         # Implement the linear transformation------------------
-        # outputs = inputs*self.W + self.b #NOT THIS(?)- don't want to output a vector
-
-        #TODO- do I have a unique bias for each input to every node in a denselayer? (I think yes)
-        # want to take in inputs from each previous node and multiply by a weight and add a bias
-        # outputs = tf.tensordot(inputs,self.W, axes = 1) + b 
-        # outputs = tf.reduce_sum(inputs*self.W + self.b) #need multiple biases
-
-
-        #check if input tensor can be read by DenseLayer
-        #	need to have this so the autograder can check it
-        # if len(inputs.shape) == 1: #TODO make sure I need this
-            # inputs = tf.expand_dims(inputs,axis=0)
-
-        #was this
         outputs = tf.matmul(inputs, self.W) + self.b #input: 
-
-
-        # worked mathematically but TF doesn't recognize for backprop
-        # outputs = tf.tensordot(inputs,tf.cast(self.W,float),axes=1) + self.b 
-        # 			test call with:
-        # 			den.call(tf.Variable([1.,2.,3...]))
 
         # Implement the activation function---------------------
         outputs = self.activation(outputs)
-
-        # check self.add_loss() to add the regularization term to the training objective-----------------
-        # self.add_loss(tf.abs(tf.reduce_mean(outputs))) #stores loss for later use in backprop
 
         return outputs
         
@@ -180,9 +137,7 @@ class Feedforward(tf.keras.Model):
             raise(Exception('The depth of the network is ', depth, ', but `hidden_sizes` has ', len(hidden_sizes), ' numbers in it.'))
 
          
-        # install all connection layers except the last one ---------------------------
-
-        #was this
+        # install all connection layers ---------------------------
         self.model = tf.keras.Sequential()
         
         if task_type == 'regression':
@@ -216,13 +171,13 @@ class Feedforward(tf.keras.Model):
         # It seems that every time the network is evaluated, the message should be printed. If so, then the message should be printed
         # for #batches times. However, you only see it printed once or twice, why? 
 
-        #TODO- answer this question
+        #Answer: The code written here is not actually run by the ipython kernel. Tensorflow takes in the network structure and hyperparameters 
+        #	     described in this file and converts them to a format that can be run in parallel on a GPU via CUDA which is 
+        #		 specifically designed to efficiently perform matrix manipulation. 
 
         print('I am in the network function!')
 
         # Now start implement this function and apply the neural network on the input 
-        # outputs = None
-
         outputs = self.model(inputs) # test works with model(tf.Variable([1.,2.,3...]))
 
         return outputs
@@ -255,8 +210,6 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     x_val = tf.convert_to_tensor(x_val) #x values for testing    
     y_val = tf.convert_to_tensor(y_val) #y values for testing
 
-    #TODO - figure out way to loop through data-> need to deal with many input points
-
     # initialize a model with the Feedforward class ---------------------------------------
 
     if task_type == 'regression':
@@ -274,9 +227,8 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     	output_size = 10 #should be 10 for MNIST dataset
     	batch_size = 128
     	LR = 0.001
-    	loss = tf.keras.losses.mean_squared_error #was this
+    	loss = tf.keras.losses.mean_squared_error
     	# loss = tf.keras.losses.MeanAbsoluteError()
-
 
     	#need to reclassify images as float (uint does not work with TF?)
     	x_train = tf.cast(x_train, tf.float32)
@@ -288,25 +240,15 @@ def train(x_train, y_train, x_val, y_val, depth, hidden_sizes, reg_weight, num_t
     model = model.model
 
     # initialize an opimizer --------------------------------------------------------------
-    #TODO - try different optimizers for different tasks
     optim = tf.keras.optimizers.Adam(learning_rate = LR)
     
-    # decide the loss for the learning problem --------------------------------------------
-    # loss = tf.keras.losses.Huber
-    # loss = tf.keras.losses.MeanSquaredError
-
     # compile and train the model. Consider model.fit() -----------------------------------
     # Note: model.fit() returns the training history. Please keep it and return it later
-
-
     model.compile(optim,loss,metrics=['accuracy']) # need to specify metrics in tf 2.3
 
     # return the model and the training history. We will print the training history -------
     history = model.fit(x_train,y_train,epochs=num_train_epochs,validation_data = (x_val,y_val),batch_size = batch_size,verbose=1) 
-    # history = model.model.fit(x_train,y_train,epochs=num_train_epochs,validation_split=0.5,verbose=1) 
 
     model.summary()
 
     return model, history
-
-    #TODO visualize loss
