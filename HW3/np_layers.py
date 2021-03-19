@@ -1,8 +1,6 @@
 import numpy as np
 import warnings
 
-
-
 def dropout_forward(x, drop_rate, mode):
     """
     Performs the forward pass for dropout.
@@ -72,7 +70,8 @@ def conv_forward(x, w, b, conv_param):
     - b: Biases, of shape (F,)
     - conv_param: A dictionary with the following keys:
       - 'stride': The number of pixels between adjacent receptive fields in the
-        horizontal and vertical directions.
+        horizontal and vertical directions. 
+
       - 'pad': The number of pixels that will be used to zero-pad the input. 
         
     During padding, 'pad' zeros should be placed symmetrically (i.e equally on both sides)
@@ -89,7 +88,62 @@ def conv_forward(x, w, b, conv_param):
     # TODO: Implement the convolutional forward pass.                         #
     # Hint: you can use the function np.pad for padding.                      #
     ###########################################################################
-    pass
+
+    #get values out of conv_param
+    pad = conv_param["pad"]
+    stride = conv_param["stride"] #how far the window slides on each step
+
+    #get height and width of filter
+    HH = w.shape[0]
+    WW = w.shape[1]
+    #get height and width of padded base image
+    H = x.shape[2] + pad*2
+    W = x.shape[1] + pad*2
+
+    #init output
+    Hout = (H + 2*pad - HH + stride) // stride 
+    Wout = (W + 2 * pad - WW + stride) // stride
+    out = np.zeros([x.shape[0],Hout-1,Wout-1,x.shape[3]])
+    
+    print("W = ", W, " WW = ", WW, " H = ", H, " HH = ", HH )
+    # print((W-WW)//stride)
+    # print((H-HH)//stride)
+
+    #slide top to bottom
+    for j in range((H-HH)//stride - 1):
+        #slide left to right
+        for k in range((W-WW)//stride - 1):
+            # #trying no loop...
+            # padx = x[n,:,:,f]
+            # padx = np.pad(padx,pad) 
+            # cropped = padx[j*stride:(j*stride+HH),k*stride:(k*stride+WW)]
+            # out[:,j,k,:] = np.sum(cropped*w)
+
+            #DEBUG - Do I actually need to loop through this?
+            #for each data point
+            for n in range(x.shape[0]): #N
+                #for each filter
+                for f in range(x.shape[3]): #F
+
+                    #pad as a function of height and width of filter
+                    #   IMPORTANT: ONLY PAD H AND W PARAMS - NOT F AND N
+                    padx = x[n,:,:,f]
+                    padx = np.pad(padx,pad) 
+
+                    #get cropped matrix from base image
+                    cropped = padx[j*stride:(j*stride+HH),k*stride:(k*stride+WW)]
+                    # cropped = padx[j*stride:(j*stride+HH)-1,k*stride:(k*stride+WW)-1]
+
+
+                    # out[n,j,k,f] = np.sum(cropped*x[n,j,k,f]) #sum(cropped*Filter)          
+                    
+                    # out[n,j,k,f] = np.sum(cropped*w) #sum(cropped*Filter)
+                    out[n,j,k,f] = np.sum(x[n,j,k,f]*cropped) #sum(cropped*Filter)
+
+
+
+
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
