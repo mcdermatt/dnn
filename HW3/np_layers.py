@@ -97,52 +97,32 @@ def conv_forward(x, w, b, conv_param):
     HH = w.shape[0]
     WW = w.shape[1]
     #get height and width of padded base image
-    H = x.shape[2] + pad*2
-    W = x.shape[1] + pad*2
+    H = x.shape[2] # + pad*2
+    W = x.shape[1] # + pad*2
 
     #init output
     Hout = (H + 2*pad - HH + stride) // stride 
     Wout = (W + 2 * pad - WW + stride) // stride
-    out = np.zeros([x.shape[0],Hout-1,Wout-1,x.shape[3]])
+    out = np.zeros([x.shape[0],Hout,Wout,w.shape[3]])
     
     print("W = ", W, " WW = ", WW, " H = ", H, " HH = ", HH )
-    # print((W-WW)//stride)
-    # print((H-HH)//stride)
 
-    #slide top to bottom
-    for j in range((H-HH)//stride - 1):
-        #slide left to right
-        for k in range((W-WW)//stride - 1):
-            # #trying no loop...
-            # padx = x[n,:,:,f]
-            # padx = np.pad(padx,pad) 
-            # cropped = padx[j*stride:(j*stride+HH),k*stride:(k*stride+WW)]
-            # out[:,j,k,:] = np.sum(cropped*w)
+    for j in range((H-HH)//stride + 2*pad): #slide top to bottom
 
-            #DEBUG - Do I actually need to loop through this?
-            #for each data point
-            for n in range(x.shape[0]): #N
-                #for each filter
-                for f in range(x.shape[3]): #F
+        for k in range((W-WW)//stride + 2*pad): #slide left to right
 
-                    #pad as a function of height and width of filter
-                    #   IMPORTANT: ONLY PAD H AND W PARAMS - NOT F AND N
-                    padx = x[n,:,:,f]
+            for n in range(x.shape[0]): #N -> for each "data point" (image)
+
+                for f in range(w.shape[3]): #F -> for each filter(?) - grayscale and edge detection
+
+                    padx = x[n,:,:,f] #only pad H and W 
                     padx = np.pad(padx,pad) 
 
                     #get cropped matrix from base image
                     cropped = padx[j*stride:(j*stride+HH),k*stride:(k*stride+WW)]
-                    # cropped = padx[j*stride:(j*stride+HH)-1,k*stride:(k*stride+WW)-1]
 
-
-                    # out[n,j,k,f] = np.sum(cropped*x[n,j,k,f]) #sum(cropped*Filter)          
-                    
-                    # out[n,j,k,f] = np.sum(cropped*w) #sum(cropped*Filter)
-                    out[n,j,k,f] = np.sum(x[n,j,k,f]*cropped) #sum(cropped*Filter)
-
-
-
-
+                    # out[n,j,k,f] = np.sum(w[:,:,:,f]*cropped) + b[f] #TODO - ouput all color channels??
+                    out[n,j,k,f] = np.sum(w[:,:,2,f]*cropped) + b[f] #weight*input + bias
 
     ###########################################################################
     #                             END OF YOUR CODE                            #
