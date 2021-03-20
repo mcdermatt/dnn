@@ -107,9 +107,9 @@ def conv_forward(x, w, b, conv_param):
     
     print("W = ", W, " WW = ", WW, " H = ", H, " HH = ", HH )
 
-    for j in range((H-HH)//stride + 2*pad): #slide top to bottom
+    for j in range(((H-HH)//stride) + 2*pad): #slide top to bottom
 
-        for k in range((W-WW)//stride + 2*pad): #slide left to right
+        for k in range(((W-WW)//stride) + 2*pad): #slide left to right
 
             for n in range(x.shape[0]): #N -> for each "data point" (image)
 
@@ -122,7 +122,8 @@ def conv_forward(x, w, b, conv_param):
                     cropped = padx[j*stride:(j*stride+HH),k*stride:(k*stride+WW)]
 
                     # out[n,j,k,f] = np.sum(w[:,:,:,f]*cropped) + b[f] #TODO - ouput all color channels??
-                    out[n,j,k,f] = np.sum(w[:,:,2,f]*cropped) + b[f] #weight*input + bias
+                    
+                    out[n,j,k,f] = np.sum(w[:,:,2,f]*cropped) + b[f] #THIS WORKSweight*input + bias
 
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -151,11 +152,35 @@ def max_pool_forward(x, pool_param):
       H' = 1 + (H - pool_height) / stride
       W' = 1 + (W - pool_width) / stride
     """
-    out = None
     ###########################################################################
-    # TODO: Implement the max-pooling forward pass                            #
+    # TODO: Implement the max-pooling forward pass
+    #   Should be very similar setup to conv_forward(?)
+    #   Do I pad a pool layer?                          
     ###########################################################################
-    pass
+    
+    # pooling layers more robust downsampling for changes in feature rotation and translation than conv layers
+    # common network: conv layer -> relu -> pooling layer ...
+
+    ph = pool_param["pool_height"] #usually 2
+    pw = pool_param["pool_width"]  #usually 2
+    stride = pool_param["stride"] #usually 2
+
+    out = np.zeros([x.shape[0],(1+(x.shape[1] - ph))//stride,(1+(x.shape[2] - pw))//stride,x.shape[3]])
+
+    #copied from conv_forward
+    for j in range(((x.shape[1]-ph)//stride)): #slide top to bottom
+
+        for k in range(((x.shape[2]-pw)//stride)): #slide left to right
+
+            for n in range(x.shape[0]): #N -> for each "data point" (image)
+
+                for c in range(x.shape[3]):
+
+                    #get cropped matrix from base image
+                    cropped = x[n,j*stride:(j*stride+ph),k*stride:(k*stride+pw),c]
+                    
+                    out[n,j,k,c] = np.max(cropped) #debug
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
