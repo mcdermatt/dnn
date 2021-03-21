@@ -154,7 +154,6 @@ def max_pool_forward(x, pool_param):
     """
     ###########################################################################
     # TODO: Implement the max-pooling forward pass
-    #   Should be very similar setup to conv_forward(?)
     #   Do I pad a pool layer?                          
     ###########################################################################
     
