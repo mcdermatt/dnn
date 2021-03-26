@@ -14,18 +14,10 @@ def dropout_forward(x, drop_rate, mode):
     Outputs:
     - out: Array of the same shape as x.
     """
-
-    #TODO 
-    #   store mask
-
     mask = None
     out = None
 
     if mode == 'train':
-        #######################################################################
-        # TODO: Implement training phase forward pass for inverted dropout.   #
-        # Store the dropout mask in the mask variable.                        #
-        #######################################################################
         
         rand = np.random.rand(*x.shape) # random vector of same length as x
 
@@ -33,24 +25,13 @@ def dropout_forward(x, drop_rate, mode):
 
         rand[rand >= drop_rate] = 1/(1-drop_rate)
 
-        mask = rand #double check this
+        mask = rand 
         out = x*rand
-
-        #######################################################################
-        #                           END OF YOUR CODE                          #
-        #######################################################################
+        
     elif mode == 'test':
-        #######################################################################
-        # TODO: Implement the test phase forward pass for inverted dropout.   #
-        #######################################################################
         
         mask = 1 #do not perform dropout when testing
-
         out = x
-        #######################################################################
-        #                            END OF YOUR CODE                         #
-        #######################################################################
-
 
     return out
 
@@ -84,10 +65,6 @@ def conv_forward(x, w, b, conv_param):
       W' = (W + 2 * pad - WW + stride) // stride
     """
     out = None
-    ###########################################################################
-    # TODO: Implement the convolutional forward pass.                         #
-    # Hint: you can use the function np.pad for padding.                      #
-    ###########################################################################
 
     #get values out of conv_param
     pad = conv_param["pad"]
@@ -99,7 +76,7 @@ def conv_forward(x, w, b, conv_param):
     #get height and width of padded base image
     H = x.shape[2] # + pad*2
     W = x.shape[1] # + pad*2
-
+ 
     #init output
     Hout = (H + 2*pad - HH + stride) // stride 
     Wout = (W + 2 * pad - WW + stride) // stride
@@ -113,22 +90,16 @@ def conv_forward(x, w, b, conv_param):
 
             for n in range(x.shape[0]): #N -> for each "data point" (image)
 
-                for f in range(w.shape[3]): #F -> for each filter(?) - grayscale and edge detection
+                for f in range(w.shape[3]): #F -> for each filter - grayscale and edge detection
 
-                    padx = x[n,:,:,f] #only pad H and W 
-                    padx = np.pad(padx,pad) 
+                    #only pad H and W
+                    npad = [(0,0),(pad,pad),(pad,pad),(0,0)]
+                    padx = np.pad(x,pad_width = npad)
 
                     #get cropped matrix from base image
-                    cropped = padx[j*stride:(j*stride+HH),k*stride:(k*stride+WW)]
-
-                    # out[n,j,k,f] = np.sum(w[:,:,:,f]*cropped) + b[f] #TODO - ouput all color channels??
+                    cropped = padx[n,j*stride:(j*stride+HH),k*stride:(k*stride+WW),:]
                     
-                    out[n,j,k,f] = np.sum(w[:,:,2,f]*cropped) + b[f] #THIS WORKSweight*input + bias
-
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
-
+                    out[n,j,k,f] = np.sum(w[:,:,:,f]*cropped) + b[f] #THIS WORKS weight*input + bias
 
     return out
 
@@ -151,12 +122,7 @@ def max_pool_forward(x, pool_param):
     - out: Output data, of shape (N, C, H', W') where H' and W' are given by
       H' = 1 + (H - pool_height) / stride
       W' = 1 + (W - pool_width) / stride
-    """
-    ###########################################################################
-    # TODO: Implement the max-pooling forward pass
-    #   Do I pad a pool layer?                          
-    ###########################################################################
-    
+    """    
     # pooling layers more robust downsampling for changes in feature rotation and translation than conv layers
     # common network: conv layer -> relu -> pooling layer ...
 
@@ -164,12 +130,11 @@ def max_pool_forward(x, pool_param):
     pw = pool_param["pool_width"]  #usually 2
     stride = pool_param["stride"] #usually 2
 
-    out = np.zeros([x.shape[0],(1+(x.shape[1] - ph))//stride,(1+(x.shape[2] - pw))//stride,x.shape[3]])
+    out = np.zeros([x.shape[0],1+(x.shape[1] - ph)//stride,1+(x.shape[2] - pw)//stride,x.shape[3]])
 
-    #copied from conv_forward
-    for j in range(((x.shape[1]-ph)//stride)): #slide top to bottom
+    for j in range(1 + ((x.shape[1]-ph)//stride)): #slide top to bottom
 
-        for k in range(((x.shape[2]-pw)//stride)): #slide left to right
+        for k in range(1 + ((x.shape[2]-pw)//stride)): #slide left to right
 
             for n in range(x.shape[0]): #N -> for each "data point" (image)
 
@@ -178,13 +143,7 @@ def max_pool_forward(x, pool_param):
                     #get cropped matrix from base image
                     cropped = x[n,j*stride:(j*stride+ph),k*stride:(k*stride+pw),c]
                     
-                    out[n,j,k,c] = np.max(cropped) #debug
-
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
-
-
+                    out[n,j,k,c] = np.max(cropped)
 
     return out
 
