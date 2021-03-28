@@ -1,0 +1,60 @@
+
+
+COMP-137 Final Project TO DO LIST
+
+
+GOAL: Use data from inertia map of human hand moving through space to estimate human pose
+		
+	(human is standing in one place to start)
+
+---------------Simulation------------------------
+
+Compile assets in .stp format (currently in Inventor ipt)
+
+Figure out how to randomize params to make different humans
+	
+Generate data on different humans	
+
+	Key human properties: 	Height
+							Weight
+							Flexibiity
+							Strength
+
+---------------Data Generation-------------------
+
+Write Matlab Script for ellipse generation for current human
+
+Optimize generation for scalability
+
+Generate lots of training/ test/ validation data
+
+---------------Data Pre-Processing---------------
+
+How to store ellipses -> can matlab export tensorflow object (that would be too easy)
+
+label data
+
+
+---------------Network Design--------------------
+
+3D CNN
+
+
+---------------Hyperparameter Optimization-------
+
+Tensorboard
+
+Optuna(?)
+
+
+--------------Visualization----------------------
+
+OpenGL again?
+
+
+--------------DOCUMENTATION----------------------
+
+Take better notes
+
+More screenshots/ screen recordings
+
