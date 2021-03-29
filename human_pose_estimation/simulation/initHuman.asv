@@ -1,6 +1,15 @@
-j0pi = 0;
-j1pi = 0;
-j2pi = 0;
+%TODO: Rename joints
+%j0- hips x axis
+%j1- hips y axis
+%j2- hips z axis
+%j3- shoulder x axis
+%j4- shoulder y axis
+%j5- shoulder z axis
+
+
+j0pi = 0; %initial hips side(?)
+j1pi = 90; %initial shoulder raise
+j2pi = -60; %initial elbow %220 elbow closed, 360 open
 
 j0vi = 0;
 j1vi = 0;
@@ -11,9 +20,9 @@ j2vi = 0;
 % fx = [0 0]; %+x -> across body
 % fx = timeseries((0:5)',[0 1 2 3 4]);
 timevec = ((0:1000)/500)';
-fz = timeseries(10*sin(timevec),timevec);
+fz = timeseries(0*sin(timevec),timevec);
 fx = timeseries(0*cos(timevec/2),timevec);
-fy = timeseries(50*sin(timevec),timevec);
+fy = timeseries(0*sin(timevec),timevec);
 % fy = [0 0];
 % fx = [0 0]; %Force on hand forwards
 
@@ -22,8 +31,8 @@ hipsul = 35;
 j0ll = -30;
 j0ul = 30;
 cwll = -90; %chicken wing lower limit
-cwul = 0;
+cwul = 20;
 j1ll = -180;
 j1ul = 180;
-j2ll = -130;
-j2ul = 15;
+j2ll = -100;
+j2ul = 70;

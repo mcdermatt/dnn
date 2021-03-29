@@ -15,6 +15,8 @@ Get stats on human muscle strength
 
 ---------------Simulation------------------------
 
+Standardize joint names
+
 Compile assets in .stp format (currently in Inventor ipt)
 
 Figure out how to randomize params to make different humans
