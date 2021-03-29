@@ -7,6 +7,12 @@ GOAL: Use data from inertia map of human hand moving through space to estimate h
 		
 	(human is standing in one place to start)
 
+
+---------------General Research------------------
+
+Get stats on human muscle strength
+
+
 ---------------Simulation------------------------
 
 Compile assets in .stp format (currently in Inventor ipt)
@@ -19,6 +25,10 @@ Generate data on different humans
 							Weight
 							Flexibiity
 							Strength
+
+Take input from human joint torques?
+
+Make shoulder limits function of shoulder angle (to avoid collision with body)
 
 ---------------Data Generation-------------------
 
