@@ -1,39 +1,37 @@
-%TODO: Rename joints
-%j0- hips x axis "hips forward"
-%j1- hips y axis "spine twist"
-%j2- hips z axis "hips side to side"
-%j5- shoulder x axis (curl)
-%j - shoulder y axis (butterfly)
-%j - shoulder z axis (chicken wing)
-%j6- elbow
-
-j0pi = 0; %initial hips side(?)
-j4pi = 20; %chicken wing [-3
-j5pi = 60; %60; %initial curl
-j2pi = 30; %initial elbow
+j0pi = 0; %spine twist
+j1pi = 0; % hips side
+j2pi = 0; %bend over
+j3pi = 0; %chicken wing
+j4pi = 20; %butterfly [-30 to 90]
+j5pi = 90; %curl
+j6pi = 60; %elbow
 
 j0vi = 0;
 j1vi = 0;
 j2vi = 0;
+j3vi = 0;
+j4vi = 0;
+j5vi = 0;
+j6vi = 0;
 
 %"from workspace" block -> external force and torque block
-%[time force]??
-% fx = [0 0]; %+x -> across body
 % fx = timeseries((0:5)',[0 1 2 3 4]);
 timevec = ((0:1000)/500)';
-fz = timeseries(40*sin(timevec),timevec);
+fz = timeseries(0*sin(timevec),timevec);
 fx = timeseries(0*cos(timevec/2),timevec);
-fy = timeseries(0*sin(timevec),timevec);
+fy = timeseries(10*sin(5*timevec),timevec);
 % fy = [0 0];
 % fx = [0 0]; %Force on hand forwards
 
+%TODO: Rename limits
 hipsll = -30;
 hipsul = 35;
 j0ll = -30;
 j0ul = 30;
 cwll = -90; %chicken wing lower limit
 cwul = 20;
-j5ll = -180;
-j5ul = 180;
-j2ll = 0;
-j2ul = 130;
+j4ll = -j4pi -30
+j5ll = -j5pi - 180;
+j5ul = -j5pi + 180;
+j6ll = -j6pi + 0;
+j6ul = -j6pi + 130;

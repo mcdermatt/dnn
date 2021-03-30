@@ -1,10 +1,12 @@
+%test script to set initial values for joint angles and velocities
+
 j0pi = 0; %spine twist
 j1pi = 0; % hips side
 j2pi = 0; %bend over
 j3pi = 0; %chicken wing
-j4pi = 20; %butterfly [-30 to 90]
-j5pi = 60; %curl
-j6pi = 30; %elbow
+j4pi = 20; %butterfly
+j5pi = 90; %curl
+j6pi = 60; %elbow
 
 j0vi = 0;
 j1vi = 0;
@@ -17,20 +19,23 @@ j6vi = 0;
 %"from workspace" block -> external force and torque block
 % fx = timeseries((0:5)',[0 1 2 3 4]);
 timevec = ((0:1000)/500)';
-fz = timeseries(40*sin(timevec),timevec);
+fz = timeseries(0*sin(timevec),timevec);
 fx = timeseries(0*cos(timevec/2),timevec);
-fy = timeseries(10*sin(timevec),timevec);
+fy = timeseries(10*sin(5*timevec),timevec);
 % fy = [0 0];
 % fx = [0 0]; %Force on hand forwards
 
-%TODO: Rename limits
-hipsll = -30;
-hipsul = 35;
-j0ll = -30;
-j0ul = 30;
-cwll = -90; %chicken wing lower limit
-cwul = 20;
-j5ll = -180;
-j5ul = 180;
-j6ll = 0;
-j6ul = 130;
+j0ll = -j0pi - 25;
+j0ul = -j0pi + 25;
+j1ll = -j1pi - 30;
+j1ul = -j1pi + 35;
+j2ll = -j2pi - 7.5;
+j2ul = -j2pi + 60;
+j3ll = -j3pi - 90; 
+j3ul = -j3pi + 20;
+j4ll = -j4pi - 30;
+j4ul = -j4pi + 90;
+j5ll = -j5pi - 180;
+j5ul = -j5pi + 180;
+j6ll = -j6pi + 0;
+j6ul = -j6pi + 130;

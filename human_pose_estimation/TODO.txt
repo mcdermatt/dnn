@@ -42,7 +42,8 @@ Generate lots of training/ test/ validation data
 
 ---------------Data Pre-Processing---------------
 
-How to store ellipses -> can matlab export tensorflow object (that would be too easy)
+Convert ellipse data from matalb to tensorflow
+	matlab -> numpy via scipy.io.loadmat() -> TensorFlow
 
 label data
 
