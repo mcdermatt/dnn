@@ -25,7 +25,7 @@
 %4) Save data on joint angles and endpoint impedance
 
 beep off
-numRuns = 24;
+numRuns = 10;
 tic
 
 data = []; %[pose A]

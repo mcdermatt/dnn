@@ -15,9 +15,38 @@ Get stats on human muscle strength
 
 ---------------Simulation------------------------
 
-Standardize joint names
+SEQUENTIAL POSES (movement history)
+	Data required:
+		[joint angles, inerita tensor]
+		OR
+		[2d array of inertia tensors, joint angles of final position]
+			do I just save joint angles of last position?
+		OR
+		[[[inertia tensor], [dist to next point]],final joint angles]
+
+	need information on spatial relationship between sequential points in xyz space (ex: second point was +2x, -1y, +0.1z)
+		how do I standardize this
+			should all be relative to last point in sequence
+
+	how to choose poses for sequential points?
+		random endpoint forces vs constant angular displacement vs constant cartesian displacement
+			using positions after random endpoint forces would be more consistant with actual data 
+			(since movement would  be representative of dynamics of the human arm)
+
+			constant cartesian displacement would make it easy to use on new data??
+
+	inertia tensors must be determiend at each position
+
+	Proposed Workflow:
+		Set joints to some initial position
+		Exert random endpoint force on arm
+		Record trajectory of joints as a result of the external force
+		Save some number of joint positions from this trajectory (start, ..., end)
+		loop though these positions, calculating inertial tensor at each? <- DO I EVEN NEED INERTIAL TENSORS???
 
 Compile assets in .stp format (currently in Inventor ipt)
+
+Ignore data points from singularity poses
 
 Figure out how to randomize params to make different humans
 	
@@ -30,7 +59,7 @@ Generate data on different humans
 
 Take input from human joint torques?
 
-Make shoulder limits function of shoulder angle (to avoid collision with body)
+
 
 ---------------Data Generation-------------------
 
@@ -50,8 +79,9 @@ label data
 
 ---------------Network Design--------------------
 
-3D CNN
+3D CNN?
 
+Is it advantagous to have information on 
 
 ---------------Hyperparameter Optimization-------
 
