@@ -7,7 +7,7 @@
 %not need to calculate endpoint impedance
 
 beep off
-numTraj = 1000;
+numTraj = 10000;
 trajPts = 10; %number of points in each trajectory
 %fixedStepSize = 0.0001; %from simulink solver
 

@@ -81,7 +81,7 @@ label data
 
 3D CNN?
 
-Is it advantagous to have information on 
+Tensorboard
 
 ---------------Hyperparameter Optimization-------
 
