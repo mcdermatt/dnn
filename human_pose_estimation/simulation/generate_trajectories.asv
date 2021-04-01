@@ -1,25 +1,25 @@
 %generates dataset with trajectories x(t), y(t), z(t) and joint angles for
 %last position in trajectory
 
-%Arm moves do to random constant forces acting on hand
+%Arm moves do to RANDOM FORCES acting on hand
 
 %ideally this should encode information on virtual inertia and thus we will
 %not need to calculate endpoint impedance
 
 beep off
-numRuns = 1;
+numTraj = 2;
 trajPts = 10; %number of points in each trajectory
 fixedStepSize = 0.0001; %from simulink solver
 
 tic
 
 traj = [];
+jointPos = [];
 
-data = []; %[pose A]
 %run a few times
 % parpool(3)
-% parfor i = 1:numRuns %parallel for loop
-for i = 1:numRuns
+% parfor i = 1:numTraj %parallel for loop
+for i = 1:numTraj
     %get random joint angles within limits
     j0pi = rand()*20-10;
     j1pi = rand()*20 - 10;
@@ -56,9 +56,9 @@ for i = 1:numRuns
     j6vi = 0;
     
     %case of constant cartesian external forces (no gravity)
-    fx = [0 0.5*randn()];
-    fy = [0 0.5*randn()];
-    fz = [0 0.5*randn()];
+    fx = [0 0.1*randn()];
+    fy = [0 0.1*randn()];
+    fz = [0 0.1*randn()];
     simOut = sim('human7DOF.slx');
     
     startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
@@ -66,11 +66,12 @@ for i = 1:numRuns
     %get array of xyz points in trajectory
     for j = 1:trajPts
         s = j*floor(length(simOut.x)/trajPts);
-        data(j,:) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;   
+        traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;   
     end
     
     %get joint angles at final point
-    jointPos = [simOut. ];
+    jointPos(i,:) = [simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
+        simOut.j4pf(s) simOut.j5pf(s) simOut.j6pf(s)];
     
 end
 

@@ -7,19 +7,19 @@
 %not need to calculate endpoint impedance
 
 beep off
-numRuns = 1;
+numTraj = 1000;
 trajPts = 10; %number of points in each trajectory
-fixedStepSize = 0.0001; %from simulink solver
+%fixedStepSize = 0.0001; %from simulink solver
 
 tic
 
 traj = [];
+jointPos = [];
 
-data = []; %[pose A]
 %run a few times
 % parpool(3)
-% parfor i = 1:numRuns %parallel for loop
-for i = 1:numRuns
+% parfor i = 1:numTraj %parallel for loop
+for i = 1:numTraj
     %get random joint angles within limits
     j0pi = rand()*20-10;
     j1pi = rand()*20 - 10;
@@ -56,9 +56,10 @@ for i = 1:numRuns
     j6vi = 0;
     
     %case of constant cartesian external forces (no gravity)
-    fx = [0 0.1*randn()];
-    fy = [0 0.1*randn()];
-    fz = [0 0.1*randn()];
+    m = 1;
+    fx = [0 m*randn()];
+    fy = [0 m*randn()];
+    fz = [0 m*randn()];
     simOut = sim('human7DOF.slx');
     
     startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
@@ -66,16 +67,19 @@ for i = 1:numRuns
     %get array of xyz points in trajectory
     for j = 1:trajPts
         s = j*floor(length(simOut.x)/trajPts);
-        data(j,:) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;   
+        traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;   
     end
     
     %get joint angles at final point
-    jointPos = [simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
-        simOut.j4pf(s) simOut.j5pf(s) simOut.j6pf(s)];
-    
+    jointPos(i,:) = [simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
+        simOut.j4pf(s) simOut.j5pf(s) simOut.j6pf(s)] ...
+        + [j0pi j1pi j2pi j3pi j4pi j5pi j6pi];
+    i
 end
 
-csvwrite('traj_data.mat', data)
+%TODO find a better way to convert data to TF
+csvwrite('traj.txt', traj)
+csvwrite('jointPos.txt',jointPos)
 toc
 
 %tes = load('data.mat', '-ASCII');
