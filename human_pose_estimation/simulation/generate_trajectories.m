@@ -7,8 +7,8 @@
 %not need to calculate endpoint impedance directly
 
 beep off
-numTraj = 300;
-trajPerChunk = 30;
+numTraj = 100000;
+trajPerChunk = 1000;
 trajPts = 10; %number of points in each trajectory
 % trajTotal = [];
 trajTotal = zeros(trajPts,3,numTraj);
@@ -23,7 +23,6 @@ count = 0;
 % parpool(3)
 % parfor m = 1:(floor(numTraj/trajPerChunk)) %parallel for loop
 
-%need to clear traj and jointPos matrices to keep things from slowing down
 m = 1;
 while m <= (floor(numTraj/trajPerChunk))
 
