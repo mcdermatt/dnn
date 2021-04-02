@@ -97,7 +97,5 @@ OpenGL again?
 
 --------------DOCUMENTATION----------------------
 
-Take better notes
-
 More screenshots/ screen recordings
 
