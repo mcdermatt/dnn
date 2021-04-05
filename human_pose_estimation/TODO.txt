@@ -12,8 +12,25 @@ GOAL: Use data from inertia map of human hand moving through space to estimate h
 
 Get stats on human muscle strength
 
+	inertia vs muscle force
+
 
 ---------------Simulation------------------------
+
+Augmenting Data -> can be WAY faster than simulating 1M times
+
+	Apply random NONLINEAR forces to hand
+		
+		Assume Gaussian force distribution
+			sin waves with random frequency, phase, and magnitude in X Y and Z
+
+	Record for longer period of time
+		take subsamples of each trajectory to use as data points
+			try to get 10+ data points from each simulation
+
+	New data will start hand from nonzero velocity 
+
+
 
 SEQUENTIAL POSES (movement history)
 	Data required:
@@ -79,9 +96,22 @@ label data
 
 ---------------Network Design--------------------
 
-3D CNN?
+Weigh j0 j1 j2 less heavily than the rest of the joints
+
+Loss function
+	
+	Scale last layer of network to match joint ranges before or after end of function
+		do I want scaled output layer to be accounted for in backprop?
+
+	____ (I'm forgetting something)
+
+1D vs 3D CNN?
+
+	1D for time series data
 
 Tensorboard
+
+Loss function - try linear loss!!!
 
 ---------------Hyperparameter Optimization-------
 
@@ -99,3 +129,13 @@ OpenGL again?
 
 More screenshots/ screen recordings
 
+References
+
+
+~~~~~~~~~~~~Questions~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Are there any disadvantages to having residual connections in a network?
+
+	All they do is make layers trend towards identity rather than trend towards zero, right?
+
+Network splits halfway through?

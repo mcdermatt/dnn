@@ -1,13 +1,15 @@
 %generates dataset with trajectories x(t), y(t), z(t) and joint angles for
 %last position in trajectory
 
-%Arm moves due to RANDOM FORCES acting on hand
+%Arm moves due to RANDOM FORCES of CONSTANT MAGNITUDE AND DIRECTION acting on hand
 
 %ideally this should encode information on virtual inertia and thus we will
 %not need to calculate endpoint impedance directly
 
+%Make sure to solve with LINEAR TIMESTEPS!!!
+
 beep off
-numTraj = 100000;
+numTraj = 1000000;
 trajPerChunk = 1000;
 trajPts = 10; %number of points in each trajectory
 % trajTotal = [];
