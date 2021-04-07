@@ -14,23 +14,9 @@ Get stats on human muscle strength
 
 	inertia vs muscle force
 
-
 ---------------Simulation------------------------
 
-Augmenting Data -> can be WAY faster than simulating 1M times
-
-	Apply random NONLINEAR forces to hand
-		
-		Assume Gaussian force distribution
-			sin waves with random frequency, phase, and magnitude in X Y and Z
-
-	Record for longer period of time
-		take subsamples of each trajectory to use as data points
-			try to get 10+ data points from each simulation
-
-	New data will start hand from nonzero velocity 
-
-
+Get world frame angles of endpoint!!!
 
 SEQUENTIAL POSES (movement history)
 	Data required:
@@ -120,9 +106,20 @@ Tensorboard
 Optuna(?)
 
 
+--------------Make sense of data-----------------
+
+Given trajectory find pose of human INCLUDING ROTATION OF HIPS RELATIVE TO ENDPOINT
+
+	Need some form of filer (Kalman??)
+
 --------------Visualization----------------------
 
-OpenGL again?
+OpenGL again
+
+	Steal code from HIPPOPOTAMOUS AND DEEP RL PROJECTS
+
+	Add ground plane
+
 
 
 --------------DOCUMENTATION----------------------

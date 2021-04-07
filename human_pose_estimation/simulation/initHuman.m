@@ -3,10 +3,10 @@
 j0pi = 0; %spine twist
 j1pi = 0; % hips side
 j2pi = 0; %bend over
-j3pi = -50; %chicken wing
+j3pi = -40; %chicken wing
 j4pi = 20; %butterfly
-j5pi = 90; %curl
-j6pi = -100; %elbow
+j5pi = 40; %curl
+j6pi = -10; %elbow
 
 j0vi = 0;
 j1vi = 0;
@@ -21,7 +21,7 @@ j6vi = 0;
 timevec = ((0:1000)/500)';
 fz = timeseries(0*sin(timevec),timevec);
 fx = timeseries(0*cos(timevec/2),timevec);
-fy = timeseries(10*sin(5*timevec),timevec);
+fy = timeseries(0*sin(5*timevec),timevec);
 % fy = [0 0];
 % fx = [0 0]; %Force on hand forwards
 
@@ -39,3 +39,5 @@ j5ll = -j5pi - 180;
 j5ul = -j5pi + 180;
 j6ll = -j6pi -130;
 j6ul = -j6pi;
+
+tesOut = sim('human7DOF.slx');

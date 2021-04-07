@@ -7,13 +7,17 @@
 %not need to calculate endpoint impedance directly
 
 %Make sure to solve with LINEAR TIMESTEPS!!!
+%   Adaptive solver is unrealistic because it provides extra data in 
+%      critical areas of trajectory
+%   Models trained in adaptive solver don't seem to work with input from
+%   linear solver (which makes sense)
 
 beep off
-numTraj = 1000000;
-trajPerChunk = 1000;
+numTraj = 10000;
+trajPerChunk = 100;
 trajPts = 10; %number of points in each trajectory
 % trajTotal = [];
-trajTotal = zeros(trajPts,3,numTraj);
+trajTotal = zeros(trajPts,6,numTraj);
 % jointPosTotal = [];
 jointPosTotal = zeros(numTraj,7);
 
@@ -28,14 +32,14 @@ count = 0;
 m = 1;
 while m <= (floor(numTraj/trajPerChunk))
 
-    try
-    %     traj = [];
-    %     jointPos = [];
         traj = zeros(trajPts, 3, trajPerChunk);
+        trajAngs = zeros(trajPts, 3, trajPerChunk);
         jointPos = zeros(trajPerChunk, 7);    
 
         %run a few times
-        for i = 1:trajPerChunk
+        i = 1;
+    while i <= trajPerChunk
+        try
             %get random joint angles within limits
             j0pi = rand()*20-10;
             j1pi = rand()*20 - 10;
@@ -83,7 +87,8 @@ while m <= (floor(numTraj/trajPerChunk))
             %get array of xyz points in trajectory
             for j = 1:trajPts
                 s = j*floor(length(simOut.x)/trajPts);
-                traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;   
+                traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;
+                trajAngs(j,:,i) = [simOut.ang(s,1) simOut.ang(s,2) simOut.ang(s,3)];
             end
 
             %get joint angles at final point
@@ -91,20 +96,19 @@ while m <= (floor(numTraj/trajPerChunk))
                 simOut.j4pf(s) simOut.j5pf(s) simOut.j6pf(s)] ...
                 + [j0pi j1pi j2pi j3pi j4pi j5pi j6pi];
             count = count + 1
-
+            i = i + 1;
+        catch
+            "error"
+            pause(0.25)
         end
-
-        %trajTotal = cat(3, trajTotal, traj);
-        trajTotal(:,:,((m-1)*trajPerChunk+1):((m)*trajPerChunk)) = traj;
-        %jointPosTotal = [jointPosTotal; jointPos];
-        jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
-
-        csvwrite('traj.txt', trajTotal)
-        csvwrite('jointPos.txt',jointPosTotal)
-    catch
-        "error"
-        m = m - 1;
     end
+    %trajTotal = cat(3, trajTotal, traj);
+    trajTotal(:,:,((m-1)*trajPerChunk+1):((m)*trajPerChunk)) = [traj trajAngs];
+    %jointPosTotal = [jointPosTotal; jointPos];
+    jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
+
+    csvwrite('traj_with_angs_10k.txt', trajTotal)
+    csvwrite('jointPos_with_angs_10k.txt',jointPosTotal)
     m = m+1;
 end
 
