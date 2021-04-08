@@ -1,0 +1,46 @@
+
+
+Word Embeddings - ways to represent words in a NN
+	
+	one-hot
+		(V,1) where V is the number of words in our vocabulary
+	
+	word2vec
+
+	GloVe
+
+activation function - Use Signoid or Tanh NOT RELU
+
+Output function is Softmax
+
+use Cross-Entropy loss func
+
+
+Vanishing gradient problem
+	
+	network has trouble assigning value to words far away from current timestep
+
+		standard RNN has single repeating layer
+
+
+LSTM- Long Short Term Memory network
+
+	h(t) = output value
+	x(t) = input value
+
+	More complex repeating layer with 4 parts		
+		1) forget gate 
+			ex: if we were talking about a male subject at the beginning of the sentence but are now referring to a female and need to switch the type of pronouns
+		2) input gate & tanh vector of input canidate values
+			ex: add the gender value of our new sentence subject
+		3) update C(t-1) -> C(t) 
+			multiply by sigmoid forget gate and add input/ tanh value
+		4) filter and output
+			sigmoid to decide what to output
+			tanh to scale from -1 to 1
+			multiply by output gate (so we only output what is desired)
+
+	http://colah.github.io/posts/2015-08-Understanding-LSTMs/ 
+
+GRU- Gated Recurrent Unit
+	scary version of LSTM
