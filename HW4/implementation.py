@@ -24,15 +24,62 @@ def rnn(wt_h, wt_x, bias, init_state, input_data):
         outputs: shape [batch_size, time_steps, hidden_size], outputs along the sequence. The output at each 
                  time step is exactly the hidden state
         final_state: the final hidden state
+    
     """
 
-    outputs = None
+    #TODO account for batch size
+
+    batch_size = np.shape(input_data)[0]
+    time_steps = np.shape(input_data)[1]
+    input_size = np.shape(input_data)[2]
+    hidden_size = np.shape(wt_h)[0]
+    print("hidden size = ", hidden_size)
+
+    #init x to given initial state
+    h = init_state
+    print("inital state (h) shape: ", np.shape(h))
+    outputs = np.zeros([batch_size, time_steps, hidden_size])
+
+    #TODO -> do I actually want to loop  through batch like this (I think no?)
+    #       if I keep this I need to rework how I init h (as of rn it contains all in batch at start)
+    count = 0
+    for i in range(batch_size):
+        for t in range(time_steps):
+
+            #get x from input_data at current timestep
+            x = input_data[:,t,:]
+            print("input (x) shape: ", np.shape(x))
+            print("wt_x * x = ", np.matmul(x, wt_x))
+            print("wt_h * h = ", np.matmul(h, wt_h))
+
+            #multiply by weights
+            x = np.matmul(x, wt_x)
+            h = np.matmul(h, wt_h)
+            
+            #concatenate
+            out = np.concatenate((x,h), axis =0)
+
+            #activation layer
+            out = sigmoid(out)
+
+            #merge the two branches
+            out = out[:np.shape(out)[0]//2] + out[np.shape(out)[0]//2:]
+
+            #average the four batches to get a output of shape [hidden_size]
+            out = np.average(out, axis = 0)
+
+            outputs[i,t,:] = out
+
+            #hold on to the output x to carry over to next loop
+            h = outputs[i,t,:] #also not right
+
+            count =+ 1
+            print(count)
+
+
+
     state = None
 
-    ##################################################################################################
-    # Please implement the basic RNN here.                                                           #
-    ##################################################################################################
-   
     return outputs, state
 
 
