@@ -27,56 +27,39 @@ def rnn(wt_h, wt_x, bias, init_state, input_data):
     
     """
 
-    #TODO account for batch size
+    # print("init state: ", init_state)
 
     batch_size = np.shape(input_data)[0]
     time_steps = np.shape(input_data)[1]
     input_size = np.shape(input_data)[2]
+    print("input size = ", input_size)
     hidden_size = np.shape(wt_h)[0]
-    print("hidden size = ", hidden_size)
+    # print("hidden size = ", hidden_size)
 
-    #init x to given initial state
-    h = init_state
-    print("inital state (h) shape: ", np.shape(h))
+    #init h given initial state
+    h = np.zeros([batch_size, time_steps, hidden_size])
+    h[:,0,:] = init_state
     outputs = np.zeros([batch_size, time_steps, hidden_size])
+    print("shape outputs: ", np.shape(outputs))
 
-    count = 0
-    # for i in range(batch_size): #TODO -> do I actually want to loop  through batch like this (I think no?)
-    for t in range(time_steps):
+    for t in range(1,time_steps):
 
         #get x from input_data at current timestep
         x = input_data[:,t,:]
-        print("input (x) shape: ", np.shape(x))
+        # print("input (x) shape: ", np.shape(x))
         # print("wt_x * x = ", np.matmul(x, wt_x))
         # print("wt_h * h = ", np.matmul(h, wt_h))
 
-        #multiply by weights
-        x = np.dot(x, wt_x)
-        h = np.dot(h, wt_h)
-        
-        #concatenate
-        out = np.concatenate((x,h), axis =0)
+        #new way
+        # h[:,t,:] = 2*sigmoid(np.dot(x,wt_x) + np.dot(h[:,t-1,:], wt_h) + bias) - 1
 
-        #activation layer
-        out = sigmoid(out)
+        outputs[:,t,:] = 2*sigmoid(np.dot(x,wt_x) + np.dot(h[:,t-1,:], wt_h) + bias) - 1
+        # wt_x -> shape (4,2)
+        # x -> shape () 
 
-        #merge the two branches
-        out = out[:np.shape(out)[0]//2] + out[np.shape(out)[0]//2:]
+        h[:,t,:] = outputs[:,t,:]
 
-        #average the four batches to get a output of shape [hidden_size]
-        out = np.average(out, axis = 0)
-
-        outputs[:,t,:] = out
-
-        #hold on to the output x to carry over to next loop
-        h = outputs[:,t,:] #also not right
-
-        count += 1
-        print(count)
-
-
-
-    state = outputs[-1]
+    state = outputs[:,-1,:]
 
     return outputs, state
 
