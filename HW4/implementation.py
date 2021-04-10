@@ -13,12 +13,12 @@ def rnn(wt_h, wt_x, bias, init_state, input_data):
     RNN forward calculation.
 
     args:
-        wt_h: shape [hidden_size, hidden_size], weight matrix for hidden state transformation. Rows corresponds 
+        wt_h: (2,2) shape [hidden_size, hidden_size], weight matrix for hidden state transformation. Rows corresponds 
               to dimensions of previous hidden states
-        wt_x: shape [input_size, hidden_size], weight matrix for input transformation
-        bias: shape [hidden_size], bias term
-        init_state: shape [hidden_size], the initial state of the RNN
-        input_data: shape [batch_size, time_steps, input_size], input data of `batch_size` sequences, each of
+        wt_x: (3,2) shape [input_size, hidden_size], weight matrix for input transformation
+        bias: (2) shape [hidden_size], bias term
+        init_state: (2) shape [hidden_size], the initial state of the RNN
+        input_data: (4,5,3) shape [batch_size, time_steps, input_size], input data of `batch_size` sequences, each of
                     which has length `time_steps` and `input_size` features at each time step. 
     returns:
         outputs: shape [batch_size, time_steps, hidden_size], outputs along the sequence. The output at each 
@@ -32,32 +32,27 @@ def rnn(wt_h, wt_x, bias, init_state, input_data):
     batch_size = np.shape(input_data)[0]
     time_steps = np.shape(input_data)[1]
     input_size = np.shape(input_data)[2]
-    print("input size = ", input_size)
+    # print("input size = ", input_size)
     hidden_size = np.shape(wt_h)[0]
     # print("hidden size = ", hidden_size)
 
     #init h given initial state
-    h = np.zeros([batch_size, time_steps, hidden_size])
-    h[:,0,:] = init_state
+    # h = np.ones([batch_size, time_steps, hidden_size]) #was this
+    # h[:,0,:] = init_state #incorrect
+
+    #set h for first step
+    h = init_state
+
     outputs = np.zeros([batch_size, time_steps, hidden_size])
     print("shape outputs: ", np.shape(outputs))
 
-    for t in range(1,time_steps):
+    for t in range(0,time_steps):
 
-        #get x from input_data at current timestep
-        x = input_data[:,t,:]
-        # print("input (x) shape: ", np.shape(x))
-        # print("wt_x * x = ", np.matmul(x, wt_x))
-        # print("wt_h * h = ", np.matmul(h, wt_h))
+        x = input_data[:,t,:] #shape: (4,3)
 
-        #new way
-        # h[:,t,:] = 2*sigmoid(np.dot(x,wt_x) + np.dot(h[:,t-1,:], wt_h) + bias) - 1
+        h = np.tanh(np.dot(x,wt_x) + np.dot(h, wt_h) + bias)
 
-        outputs[:,t,:] = 2*sigmoid(np.dot(x,wt_x) + np.dot(h[:,t-1,:], wt_h) + bias) - 1
-        # wt_x -> shape (4,2)
-        # x -> shape () 
-
-        h[:,t,:] = outputs[:,t,:]
+        outputs[:,t,:] = h      
 
     state = outputs[:,-1,:]
 
