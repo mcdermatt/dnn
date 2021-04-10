@@ -44,3 +44,7 @@ LSTM- Long Short Term Memory network
 
 GRU- Gated Recurrent Unit
 	scary version of LSTM
+
+	reset gate - short term memory
+
+	update gate - long term memory

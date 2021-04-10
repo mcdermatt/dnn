@@ -27,26 +27,17 @@ def rnn(wt_h, wt_x, bias, init_state, input_data):
     
     """
 
-    # print("init state: ", init_state)
-
     batch_size = np.shape(input_data)[0]
     time_steps = np.shape(input_data)[1]
     input_size = np.shape(input_data)[2]
-    # print("input size = ", input_size)
     hidden_size = np.shape(wt_h)[0]
-    # print("hidden size = ", hidden_size)
-
-    #init h given initial state
-    # h = np.ones([batch_size, time_steps, hidden_size]) #was this
-    # h[:,0,:] = init_state #incorrect
 
     #set h for first step
     h = init_state
 
     outputs = np.zeros([batch_size, time_steps, hidden_size])
-    print("shape outputs: ", np.shape(outputs))
 
-    for t in range(0,time_steps):
+    for t in range(time_steps):
 
         x = input_data[:,t,:] #shape: (4,3)
 
@@ -84,15 +75,38 @@ def gru(wtz_h, wtz_x, biasz, wtr_h, wtr_x, biasr, wth_h, wth_x, biash, init_stat
         final_state: the final hidden state
     """
 
+    batch_size = np.shape(input_data)[0]
+    time_steps = np.shape(input_data)[1]
+    input_size = np.shape(input_data)[2]
+    hidden_size = np.shape(init_state)[1]
 
-    outputs = None
-    state = None
+    #set h for first step
+    h = init_state
 
-    ##################################################################################################
-    # Please implement the GRU here.                                                                 #
-    ##################################################################################################
-        
-    
+    outputs = np.zeros([batch_size, time_steps, hidden_size])
+
+    for t in range(time_steps):
+
+        x = input_data[:,t,:]
+
+        # reset gate -> short term memory (move to new subject)
+        r = sigmoid(np.dot(x,wtr_x) + np.dot(h,wtr_h) + biasr)
+
+        # update gate -> long term memory (Retains memory of subject, adds information)
+        z = sigmoid(np.dot(x,wtz_x) + np.dot(h,wtz_h) + biasz)
+
+        #update canadate h
+        h_hat = np.tanh(np.dot(x,wth_x) + np.dot((r * h), wth_h) + biash)
+
+        #update h
+        h = z*h + (1-z)*h_hat
+
+        #save outputs
+        outputs[:,t,:] = h 
+
+    state = outputs[:,-1,:]
+
+       
     return outputs, state
 
 
