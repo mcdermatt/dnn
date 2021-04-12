@@ -8,7 +8,12 @@ import time
 from pyglet.window import mouse
 from utils import mat2np
 
-#TODO: add ground plane
+#TODO:
+#	   Inverse Kinematics
+#			Make hand the base joint, place everything else relative to hand
+
+#	   Whole body rotation
+#			estimate joint positions twice, figure out what human orientation would work to allow such successive joint angles
 
 class viz:
 	"""Human visualization class made using OpenGL
@@ -49,6 +54,9 @@ class viz:
 		self.rx.scale = 0.005
 		self.rx.x = -10
 		self.rx.y = 12
+		grid = pyglet.image.load('simulation/assets/grid.png')
+		self.grid = pyglet.sprite.Sprite(img = grid)
+		self.grid.scale = 0.1
 
 		self.l1 = 13.25
 		self.l2 = 13.25
@@ -80,14 +88,16 @@ class viz:
 	def on_resize(self,width, height):
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
-		gluPerspective(50., float(width)/height, 1., 100.) #change first argument for fov
+		gluPerspective(80., float(width)/height, 1., 1000.) #change first argument for fov #change last for max clip dist
 		glTranslatef(0,-5,-50) #fits arm into camera view
 		glMatrixMode(GL_MODELVIEW)
 		return True
 
 	def on_draw(self):
 		self.window.clear()
-		glClearColor(0.1,0.1,0.1,0.5) #sets background color
+		#set background color
+		# glClearColor(0.1,0.1,0.1,0.5) #night mode
+		glClearColor(1.,1.,1.,0.5) #white
 		glViewport(0,0,1280,720)
 		glLoadIdentity()
 		glMatrixMode(GL_PROJECTION)		
@@ -100,6 +110,14 @@ class viz:
 		# glTranslatef(np.sin(np.deg2rad(self.theta/5))*self.dCam/5,0,np.cos(np.deg2rad(self.theta/5))*self.dCam/5)
 
 		glMatrixMode(GL_MODELVIEW)
+
+		#draw ground plane
+		glRotatef(90,1,0,0)
+		glTranslatef(-50,-50,20)
+		self.grid.draw()
+		glRotatef(90,-1,0,0)
+		glTranslatef(50,50,-20)
+
 		link0RotA = (180/np.pi)*self.pathA[self.i,0]
 		link1RotA = (180/np.pi)*self.pathA[self.i,1]
 		link2RotA = (180/np.pi)*self.pathA[self.i,2]

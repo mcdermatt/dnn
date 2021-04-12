@@ -12,13 +12,14 @@
 %   Models trained in adaptive solver don't seem to work with input from
 %   linear solver (which makes sense)
 
+%TODO -> decide if I should lock wrist or not 
+%           would start each trajectory at set angle and not move
+
 beep off
-numTraj = 10000;
-trajPerChunk = 100;
+numTraj = 1;
+trajPerChunk = 1;
 trajPts = 10; %number of points in each trajectory
-% trajTotal = [];
 trajTotal = zeros(trajPts,6,numTraj);
-% jointPosTotal = [];
 jointPosTotal = zeros(numTraj,7);
 
 %NOTE: This works WAAAYY faster withtout visual simulation on 
@@ -48,6 +49,7 @@ while m <= (floor(numTraj/trajPerChunk))
             j4pi = rand()*120 - 30;
             j5pi = rand()*120 -30;
             j6pi = -rand()*130;
+            j7pi = rand()*90 - 45;
 
             pose = [j0pi j1pi j2pi j3pi j4pi j5pi j6pi];
 
@@ -66,7 +68,9 @@ while m <= (floor(numTraj/trajPerChunk))
             j5ul = -j5pi + 180;
             j6ll = -j6pi - 130;
             j6ul = -j6pi;
-
+            j7ll = -j7pi - 90;
+            j7ul = -j7pi + 90;
+            
             j0vi = 0;
             j1vi = 0;
             j2vi = 0;
@@ -74,13 +78,15 @@ while m <= (floor(numTraj/trajPerChunk))
             j4vi = 0;
             j5vi = 0;
             j6vi = 0;
+            j7vi = 0;
 
             %case of constant cartesian external forces (no gravity)
             mult = 1;
             fx = [0 mult*randn()];
             fy = [0 mult*randn()];
             fz = [0 mult*randn()];
-            simOut = sim('human7DOF.slx');
+%             simOut = sim('human7DOF.slx');
+            simOut = sim('human9DOF.slx');
 
             startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
 
@@ -107,8 +113,8 @@ while m <= (floor(numTraj/trajPerChunk))
     %jointPosTotal = [jointPosTotal; jointPos];
     jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
 
-    csvwrite('traj_with_angs_10k.txt', trajTotal)
-    csvwrite('jointPos_with_angs_10k.txt',jointPosTotal)
+%     csvwrite('traj_with_angs_1k.txt', trajTotal)
+%     csvwrite('jointPos_with_angs_1k.txt',jointPosTotal)
     m = m+1;
 end
 

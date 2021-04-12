@@ -14,9 +14,17 @@ Get stats on human muscle strength
 
 	inertia vs muscle force
 
+Fitts' law -> emperical law about how long it takes to move your hand between two points in space
+	
+	linear tradeoff between distance and accuracy
+
+		2x distance at 0.5 accuracy can be done in equal time
+
 ---------------Simulation------------------------
 
 Get world frame angles of endpoint!!!
+
+	Debug 1M dataset
 
 SEQUENTIAL POSES (movement history)
 	Data required:
@@ -81,6 +89,13 @@ label data
 
 
 ---------------Network Design--------------------
+
+Fix exploding gradients
+
+	grading clipping for 1M dataset?
+
+	Batch normalization can cause exploding gradients
+		https://kyleluther.github.io/2020/02/18/batchnorm-exploding-gradients.html
 
 Weigh j0 j1 j2 less heavily than the rest of the joints
 
