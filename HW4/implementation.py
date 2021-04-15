@@ -360,10 +360,34 @@ def init_gru_with_long_term_memory(wt_h, wt_x, bias):
     """
 
 
-    ####################################################################################################
-    # Please set a set of parameters for a GRU such that it keeps the initial state in its memory      #
-    ####################################################################################################
-     
+    hidden_size = np.shape(wt_h)[0]
+    input_size = np.shape(wt_x)[0]
+
+    #RNN Formula---------------------------
+    # h = np.tanh(np.dot(x,wt_x) + np.dot(h, wt_h) + bias) <------
+
+    #general GRU formula ------------------
+    #h = z*h + (1-z)*h_hat
+    # if z = 1:
+    # h = z*h
+    # h = sigmoid(np.dot(x,wtz_x) + np.dot(h,wtz_h) + biasz)*h
+    # can make z term 1 by adding large bias
+
+    wth_x = wt_x
+    wth_h = wt_h
+    biash = bias
+
+    # to make z = 1 add a huge positive bias
+    # z = sigmoid(np.dot(x,wtz_x) + np.dot(h,wtz_h) + biasz)
+    wtz_x = np.ones([input_size, hidden_size]) #not important
+    wtz_h = np.ones([hidden_size, hidden_size]) #not important
+    biasz = 1000*np.ones([hidden_size])#huge negative number
+
+    # r term is set arbitrarily here
+    biasr = np.ones([hidden_size]) #not important
+    wtr_x = np.ones([input_size, hidden_size]) #not important
+    wtr_h = np.ones([hidden_size, hidden_size]) #not important
+
     return wtz_h, wtz_x, biasz, wtr_h, wtr_x, biasr, wth_h, wth_x, biash
 
 #Don't think I need this
