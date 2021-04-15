@@ -48,3 +48,15 @@ GRU- Gated Recurrent Unit
 	reset gate - short term memory
 
 	update gate - long term memory
+
+    encoding- give unique integer for each character in the vocab
+
+    	vocab_size: large enough to include all characters
+
+	embedding:
+        
+        "method for reprsenting discrete variables as continuous vectors"
+
+        embed words (or letters in our simple case) into vectors of 8 dimensions
+
+		https://medium.com/@naidubhavya06/detailed-explanation-of-keras-embedding-layer-afe4c3a596a
