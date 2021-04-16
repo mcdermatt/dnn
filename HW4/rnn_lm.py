@@ -1,5 +1,3 @@
-# You are supposed to put your own RNN model here
-
 import tensorflow as tf
 
 def masked_lm_loss(labels, logits):
