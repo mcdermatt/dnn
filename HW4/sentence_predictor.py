@@ -6,7 +6,7 @@ def generate_model(train_x, train_y, vocSize, maxLen):
 
     #train model on data of large batch sizes ------------------------------------------------------------------
     batch_size = 64 #network does not like BatchSize = 512??
-    runLen = 100 #total number of epochs
+    runLen = 5 #total number of epochs
 
     model_batch = Net(maxLen, vocSize, batchSize = batch_size, stateful = False) #TODO should stateful be true???
     model_batch.summary()
@@ -17,13 +17,13 @@ def generate_model(train_x, train_y, vocSize, maxLen):
         part2 = 2*runLen//3
     
         if epoch < part1:
-            lr = 0.001
+            lr = 0.01
             return lr
         if epoch >= part1 and epoch < part2:
-            lr = 0.0001
+            lr = 0.001
             return lr
         if epoch >= part2:
-            lr = 0.00001
+            lr = 0.0001
             return lr
 
     callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
@@ -50,7 +50,7 @@ def Net(maxLen, vocSize, batchSize = 1, stateful = False):
     #was this
     model.add(tf.keras.layers.InputLayer(batch_input_shape=(batchSize, maxLen, 1))) #[batch size, max sentence length, ???]
     model.add(tf.keras.layers.Lambda(lambda x: tf.squeeze(x + 1, axis=[-1])))
-    model.add(tf.keras.layers.Embedding(input_dim=vocSize + 1, output_dim=128, input_length=maxLen)) #test new output dims
+    model.add(tf.keras.layers.Embedding(input_dim=vocSize + 1, output_dim=95, input_length=maxLen)) #test new output dims
 
 
     #NOTE: be careful of interactions between dropout and normalization

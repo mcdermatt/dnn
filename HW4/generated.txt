@@ -33,3 +33,6 @@ Starting from "I left my ", the generated sentence is:
 
 Starting from "The little ", the generated sentence is:
 "The little style on my donald trump on a fish are consider and before you judge? i have a 'biddy do "
+
+Starting from "The little ", the generated sentence is:
+"The little shopping run puts his wife of the expensive surveys pease"
