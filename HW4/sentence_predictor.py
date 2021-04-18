@@ -5,8 +5,8 @@ from rnn_lm import masked_lm_loss
 def generate_model(train_x, train_y, vocSize, maxLen):
 
     #train model on data of large batch sizes ------------------------------------------------------------------
-    batch_size = 32 #network does not like BatchSize = 512??
-    runLen = 30
+    batch_size = 64 #network does not like BatchSize = 512??
+    runLen = 100 #total number of epochs
 
     model_batch = Net(maxLen, vocSize, batchSize = batch_size, stateful = False) #TODO should stateful be true???
     model_batch.summary()
@@ -17,13 +17,13 @@ def generate_model(train_x, train_y, vocSize, maxLen):
         part2 = 2*runLen//3
     
         if epoch < part1:
-            lr = 0.01
-            return lr
-        if epoch >= part1 and epoch < part2:
             lr = 0.001
             return lr
+        if epoch >= part1 and epoch < part2:
+            lr = 0.0001
+            return lr
         if epoch >= part2:
-            lr = 0.0005
+            lr = 0.00001
             return lr
 
     callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
@@ -44,24 +44,22 @@ def generate_model(train_x, train_y, vocSize, maxLen):
 
 def Net(maxLen, vocSize, batchSize = 1, stateful = False):
 
-    drop = 0.5
+    drop = 0.05 #ideal?
 
     model = tf.keras.Sequential()
     #was this
     model.add(tf.keras.layers.InputLayer(batch_input_shape=(batchSize, maxLen, 1))) #[batch size, max sentence length, ???]
     model.add(tf.keras.layers.Lambda(lambda x: tf.squeeze(x + 1, axis=[-1])))
-    model.add(tf.keras.layers.Embedding(input_dim=vocSize + 1, output_dim=1024, input_length=maxLen)) #test new output dims
+    model.add(tf.keras.layers.Embedding(input_dim=vocSize + 1, output_dim=128, input_length=maxLen)) #test new output dims
 
-    #testing
-    # model.add(tf.keras.layers.Embedding(vocSize, 256))
-    # model.add(tf.keras.layers.InputLayer(batch_input_shape=(batchSize, maxLen, 1)))
+
+    #NOTE: be careful of interactions between dropout and normalization
 
     # model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.GRU(95, activation = 'tanh', return_sequences = True, stateful = stateful)) #was 1024
+    model.add(tf.keras.layers.GRU(256, activation = 'tanh', return_sequences = True, dropout = 0.05, stateful = stateful)) #was 1024
     # model.add(tf.keras.layers.LSTM(95, activation = 'tanh', return_sequences = True, stateful = stateful))
-    # model.add(tf.keras.layers.Dropout(drop)) #add if overfitting
-    # model.add(tf.keras.layers.Dense(16, activation = 'relu')) #test
-    # model.add(tf.keras.layers.Dense(units = vocSize, activation = 'sigmoid'))
+    model.add(tf.keras.layers.Dropout(drop)) #add if overfitting
+    model.add(tf.keras.layers.Dense(units = vocSize))
 
 
     #output of model should be onehot
