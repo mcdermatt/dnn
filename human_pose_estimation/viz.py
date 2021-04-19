@@ -37,12 +37,11 @@ class viz:
 		self.window.push_handlers(self.keys)
 		self.window.push_handlers(self.on_mouse_drag)
 
-		self.base = Wavefront('simulation/assets/hipsAndLegs.obj')
-		self.link0 = Wavefront('simulation/assets/torso.obj')
-		self.link1 = Wavefront('simulation/assets/upperArm.obj')
-		self.link1Clear = Wavefront('simulation/assets/upperArm.obj')
-		self.link2 = Wavefront('simulation/assets/lowerArm.obj')
-		self.link2Clear = Wavefront('simulation/assets/lowerArm.obj')
+		self.legs = Wavefront('simulation/assets/hipsAndLegs.obj')
+		self.torso = Wavefront('simulation/assets/torso.obj')
+		self.upperArm = Wavefront('simulation/assets/upperArm.obj')
+		self.lowerArm = Wavefront('simulation/assets/lowerArm.obj')
+		self.hand = Wavefront('simulation/assets/hand.obj')
 		self.ball = Wavefront('simulation/assets/ball.obj')
 		greenCheck = pyglet.image.load('simulation/assets/greenCheck.png')
 		self.gc = pyglet.sprite.Sprite(img=greenCheck)
@@ -63,25 +62,14 @@ class viz:
 		self.l3 = 2.65
 		self.rotation = 0
 		self.cameraZ = 0.0
-		self.i = 0
+		self.i = 0 #count variable
 		self.on_resize(1280,720)
 
 		self.dx = 0
 		self.dy = 0
 		self.theta = 0
 		self.dCam = 0
-
-		#test
-		#TODO generate plot from here
 		self.label = None
-		# plotFigPath = "pathFig.png"
-		# plotFig = pyglet.image.load(plotFigPath)
-
-
-		# self.plotFig = pyglet.sprite.Sprite(img=plotFig)
-		# self.plotFig.scale = 0.0375
-		# self.plotFig.x = -32
-		# self.plotFig.y = 5
 
 		self.spf = 1/60 #seconds per frame
 
@@ -96,8 +84,8 @@ class viz:
 	def on_draw(self):
 		self.window.clear()
 		#set background color
-		# glClearColor(0.1,0.1,0.1,0.5) #night mode
-		glClearColor(1.,1.,1.,0.5) #white
+		glClearColor(0.1,0.1,0.1,0.5) #night mode
+		# glClearColor(1.,1.,1.,0.5) #white
 		glViewport(0,0,1280,720)
 		glLoadIdentity()
 		glMatrixMode(GL_PROJECTION)		
@@ -118,27 +106,7 @@ class viz:
 		glRotatef(90,-1,0,0)
 		glTranslatef(50,50,-20)
 
-		link0RotA = (180/np.pi)*self.pathA[self.i,0]
-		link1RotA = (180/np.pi)*self.pathA[self.i,1]
-		link2RotA = (180/np.pi)*self.pathA[self.i,2]
-
-		link0RotB = (180/np.pi)*self.pathB[self.i,0]
-		link1RotB = (180/np.pi)*self.pathB[self.i,1]
-		link2RotB = (180/np.pi)*self.pathB[self.i,2]
-
 		lightfv = ctypes.c_float * 4
-
-		link2RotEffA = link1RotA + link2RotA
-		link2RotEffB = link1RotB + link2RotB
-
-		xElbA = ( self.l1 * np.sin(link0RotA*(np.pi/180))*np.sin(link1RotA*(np.pi/180)))
-		yElbA = ( self.l1 * np.cos((link1RotA*(np.pi/180)))) 
-		zElbA =  ( self.l1 * np.cos(link0RotA*(np.pi/180))*np.sin(link1RotA*(np.pi/180)))
-
-		xElbB = ( self.l1 * np.sin(link0RotB*(np.pi/180))*np.sin(link1RotB*(np.pi/180)))
-		yElbB = ( self.l1 * np.cos((link1RotB*(np.pi/180)))) 
-		zElbB =  ( self.l1 * np.cos(link0RotB*(np.pi/180))*np.sin(link1RotB*(np.pi/180)))
-
 
 		#glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-1.0, 1.0*np.sin(rotation*0.1), 1.0, 0.0))
 		# glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.5,0.5,0.5,0.1))
@@ -153,49 +121,162 @@ class viz:
 		# self.draw_link1(self.link1Clear, 0, 0, 0,link0RotB, link1RotB, wireframe=True)
 		# self.draw_link2(self.link2, xElbA, yElbA, zElbA, link0RotA, link1RotA, link2RotA)
 		# self.draw_link2(self.link2Clear, xElbB, yElbB, zElbB, link0RotB, link1RotB, link2RotB, wireframe=True)
-		self.draw_endpoint(self.ball,link0RotB, link1RotB, link2RotB)
+		# self.draw_endpoint(self.ball,link0RotB, link1RotB, link2RotB)
+		x = 0 #self.pathA[self.i,0] * 100
+		y = 0 #self.pathA[self.i,1] * 100
+		z = 0 #self.pathA[self.i,2] * 100
+		bodyRot = self.i/ 10
+		j0 = 0 #self.i /2
+		j1 = 0 #self.i /2
+		j2 = 0# self.i /2
+		
+		j3 = self.i / 5 #chicken wing
+		j4 = -self.i / 5
+		j5 = -self.i / 5
+		j6 = self.i / 2
+		j7 = self.i / 5 #wrist twist
+		j8 = 30 + self.i / 2 #wrist in (shooting a basketball) - add 30 to start out straight
+		#TODO - add in joint angles
+		self.draw_human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot)
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 		
 		time.sleep(0.01)
 
-	def draw_base(self,link):
-		glLoadIdentity()
-		glMatrixMode(GL_MODELVIEW)
-		glRotatef(45,0,1,0)
-		glTranslatef(0,-3.4,0)
-		visualization.draw(link)
-
-	def draw_link0(self,link, x, y, z, link0Rot):
-		glLoadIdentity()
-		glMatrixMode(GL_MODELVIEW)
-		glRotatef(link0Rot, 0.0, 1.0 , 0.0)
-		glTranslatef(x, y, z)
-
-		visualization.draw(link)
-
-	def draw_link1(self,link, x, y, z,link0Rot, link1Rot, wireframe=False):
-		glLoadIdentity()
-		glMatrixMode(GL_MODELVIEW)
-		#glRotatef(180,0,1,0) #flips l1 around so it isnt bending backwards
-		glRotatef(link0Rot, 0.0, 1.0 , 0.0)
-		glRotatef(link1Rot, 1.0, 0.0 , 0.0)
-		if wireframe:
-			glPolygonMode( GL_FRONT, GL_POINT)
-		visualization.draw(link)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+	def draw_human(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot):
 		
-	def draw_link2(self,link, x, y, z, link0Rot, link1Rot, link2Rot, wireframe=False):
+		'''inputs: xyz of HIPS, all human joint angles, human body rotation'''
+
+		self.draw_legs(x, y, z, bodyRot)
+		shoulderx, shouldery, shoulderz = self.draw_torso(x, y, z, j0, j1, j2, bodyRot)
+		elbowx, elbowy, elbowz = self.draw_upper_arm(shoulderx, shouldery, shoulderz, j0, j1, j2, j3, j4, j5, bodyRot)
+		wristx, wristy, wristz = self.draw_lower_arm(elbowx, elbowy, elbowz, j0, j1, j2, j3, j4, j5, j6, bodyRot)
+		self.draw_hand(wristx, wristy, wristz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot)
+
+		# self.draw_hand(self.hand, bodyRot, x, y, z, j7, j8)
+		# self.draw_lower_arm(self.lowerArm, bodyRot, x, y, z, j7, j8)
+
+	def draw_legs(self, x, y, z, bodyRot, wireframe = False):
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
 		glTranslatef(x, y, z)
-		#print("link0Rot: ", link0Rot, " Link1Rot: ", link1Rot, " Link2Rot: ", link2Rot)
-		glRotatef(link0Rot, 0.0, 1.0 , 0.0)
-		glRotatef(link1Rot, 1.0, 0.0 , 0.0)
-		glRotatef(link2Rot, 1.0, 0.0, 0.0)
+		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
 		if wireframe:
 			glPolygonMode( GL_FRONT, GL_POINT)
-		visualization.draw(link)
+		visualization.draw(self.legs)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+	def draw_torso(self, x, y, z, j0, j1, j2, bodyRot, wireframe = False):
+		glLoadIdentity()
+		glMatrixMode(GL_MODELVIEW)
+
+		#shoulder to hips offset = [-7.8, 14.76, -2.1745]
+		#dist shoulder to hips = 16.83
+		dist = 16.83
+		shoulderx = x - 7.8
+		shouldery = y + 14.76 
+		shoulderz = z - 2.1745 
+		glTranslatef(shoulderx, shouldery, shoulderz)
+
+		#TODO actual rotation matrices
+
+		glRotatef(j0, 0, 1, 0)
+		glRotatef(j1, 0, 0, 1)
+		glRotatef(j2, 1, 0, 0)
+		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
+
+		
+
+		if wireframe:
+			glPolygonMode( GL_FRONT, GL_POINT)
+		visualization.draw(self.torso)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+		return shoulderx, shouldery, shoulderz
+
+
+	def draw_upper_arm(self, shoulderx, shouldery, shoulderz, j0, j1, j2, j3, j4, j5, bodyRot, wireframe = False):
+		
+		#copypasta from draw_torso--------------------
+		glLoadIdentity()
+		glMatrixMode(GL_MODELVIEW)
+		glTranslatef(shoulderx, shouldery, shoulderz)
+		glRotatef(j0, 0, 1, 0)
+		glRotatef(j1, 0, 0, 1)
+		glRotatef(j2, 1, 0, 0)
+		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
+		#--------------------------------------------
+
+		glRotatef(j3, 0, 1, 0)
+		glRotatef(j4, 0, 0, 1)
+		glRotatef(j5, 1, 0, 0)
+
+		length = 10 #length of upper arm
+		elbowx = shoulderx
+		elbowy = shouldery-length*np.cos(np.deg2rad(j5))*np.cos(np.deg2rad(j4))
+		elbowz = shoulderz
+
+		if wireframe:
+			glPolygonMode( GL_FRONT, GL_POINT)
+		visualization.draw(self.upperArm)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+		return elbowx, elbowy, elbowz
+
+	def draw_lower_arm(self, elbowx, elbowy, elbowz, j0, j1, j2, j3, j4, j5, j6, bodyRot, wireframe = False):
+				#copypasta from draw_torso--------------------
+		glLoadIdentity()
+		glMatrixMode(GL_MODELVIEW)
+		glTranslatef(elbowx,elbowy,elbowz)
+
+		glRotatef(j0, 0, 1, 0)
+		glRotatef(j1, 0, 0, 1)
+		glRotatef(j2, 1, 0, 0)
+		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
+		#--------------------------------------------
+
+		glRotatef(j3, 0, 1, 0)
+		glRotatef(j4, 0, 0, 1)
+		glRotatef(j5, 1, 0, 0)
+
+		glRotatef(j6, -1, 0, 0) #TODO - debug this
+
+
+		if wireframe:
+			glPolygonMode( GL_FRONT, GL_POINT)
+		visualization.draw(self.lowerArm)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+		wristx = elbowx
+		wristy = elbowy -10
+		wristz = elbowz
+
+		return wristx, wristy, wristz
+
+	def draw_hand(self, wristx, wristy, wristz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False):
+
+		glLoadIdentity()
+		glMatrixMode(GL_MODELVIEW)
+		glTranslatef(wristx,wristy,wristz)
+
+		glRotatef(j0, 0, 1, 0)
+		glRotatef(j1, 0, 0, 1)
+		glRotatef(j2, 1, 0, 0)
+		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
+		#--------------------------------------------
+
+		glRotatef(j3, 0, 1, 0)
+		glRotatef(j4, 0, 0, 1)
+		glRotatef(j5, 1, 0, 0)
+
+		glRotatef(j6, -1, 0, 0) #idk here
+		glRotatef(j7, 0, 1, 0) #idk here
+		glRotatef(j8, 0, 0, 1) #idk here
+
+
+		if wireframe:
+			glPolygonMode( GL_FRONT, GL_POINT)
+		visualization.draw(self.hand)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
 	def draw_endpoint(self, link, x, y, z, wireframe = False):
@@ -235,9 +316,6 @@ class viz:
 
 
 if __name__ == "__main__":
-
-	# filename1 = "best_path.npy"
-	# filename2 = "best_goal_path.npy"
 
 	filename1 = "simulation/data/traj_random1k.txt"
 	filename2 = "simulation/data/traj_random1k.txt"

@@ -213,7 +213,7 @@ def Net2(**kwargs):
 
 def Net3(**kwargs):
 
-    '''for constant linear force data (only 10 points at inconsistant intervals, position only no angles)'''
+    '''for constant linear force data (only 10 points at inconsistant intervals, position and angles)'''
 
     #TODO -> take trajPts as input
     #TODO -> remove padding on some layers?
@@ -321,6 +321,119 @@ def Net3(**kwargs):
 
     #rescale output to the range of motion of each joint
     output = output*tf.constant([25., 30., 33.75, 55. , 60., 180., 65.]) + tf.constant([0., 0., 26.25, -35., 30., 0., -65.])
+
+    model = tf.keras.Model(inputs,output)
+
+    return model
+
+
+def Net4(**kwargs):
+
+    '''for constant linear force data. 10 points at constant intervals with position and angles
+       USE WITH 9DOF model
+
+    '''
+
+    inputs = keras.Input(shape=(10,6)) 
+
+    X = keras.layers.BatchNormalization()(inputs)
+    X = tf.keras.layers.Conv1D(filters = 16, kernel_size = 3, activation='relu')(X) #added same padding
+    skip = tf.identity(X)
+
+    X = tf.keras.layers.Conv1D(filters = 16, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+
+    X = tf.keras.layers.Conv1D(filters = 16, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+
+    X = keras.layers.add([X,skip])
+    X = keras.layers.ReLU()(X)
+    
+    #Start repeating-------------
+
+    X = tf.keras.layers.Conv1D(filters = 32, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+    skip = tf.identity(X)
+
+    X = tf.keras.layers.Conv1D(filters = 32, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+
+    X = keras.layers.add([X,skip])
+    X = keras.layers.ReLU()(X)
+
+    #---
+
+    X = tf.keras.layers.Conv1D(filters = 64, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+    skip = tf.identity(X)
+
+    X = tf.keras.layers.Conv1D(filters = 64, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+
+    X = keras.layers.add([X,skip])
+    X = keras.layers.ReLU()(X)
+
+    #---
+
+    X = tf.keras.layers.Conv1D(filters = 128, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+    skip = tf.identity(X)
+
+    X = tf.keras.layers.Conv1D(filters = 128, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+
+    X = keras.layers.add([X,skip])
+    X = keras.layers.ReLU()(X)
+
+    #---
+
+    X = tf.keras.layers.Conv1D(filters = 256, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+    skip = tf.identity(X)
+
+    X = tf.keras.layers.Conv1D(filters = 256, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+
+    X = keras.layers.add([X,skip])
+    X = keras.layers.ReLU()(X)
+
+    #---
+
+    X = tf.keras.layers.Conv1D(filters = 512, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+    skip = tf.identity(X)
+
+    X = tf.keras.layers.Conv1D(filters = 512, kernel_size = 3, activation='relu', padding = 'same')(X)
+    X = keras.layers.BatchNormalization()(X)
+
+    X = keras.layers.add([X,skip])
+    X = keras.layers.ReLU()(X)
+
+    # #---
+
+    # X = tf.keras.layers.Conv1D(filters = 1024, kernel_size = 3, activation='relu', padding = 'same')(X)
+    # X = keras.layers.BatchNormalization()(X)
+    # skip = tf.identity(X)
+
+    # X = tf.keras.layers.Conv1D(filters = 1024, kernel_size = 3, activation='relu', padding = 'same')(X)
+    # X = keras.layers.BatchNormalization()(X)
+
+    # X = keras.layers.add([X,skip])
+    # X = keras.layers.ReLU()(X)
+
+    #End layers--------------------------------
+    # X = keras.layers.MaxPooling1D(pool_size=2)(X) #NEW -> not sure if helpful...
+    X = keras.layers.Flatten()(X)
+    X = keras.layers.Dense(units = 64, activation = 'relu')(X) #trying without these
+    X = keras.layers.BatchNormalization()(X)
+    X = keras.layers.Dense(units = 64, activation = 'relu')(X) 
+    X = keras.layers.BatchNormalization()(X)
+    X = keras.layers.Dense(units = 64, activation = 'relu')(X) 
+    X = keras.layers.BatchNormalization()(X)
+    output = keras.layers.Dense(units=9, activation = 'tanh')(X)
+
+    #rescale output to the range of motion of each joint
+    output = output*tf.constant([25., 30., 33.75, 55. , 60., 180., 65., 90., 55.]) + tf.constant([0., 0., 26.25, -35., 30., 0., -65., 0., 0.])
 
     model = tf.keras.Model(inputs,output)
 
