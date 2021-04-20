@@ -7,13 +7,21 @@ import numpy as np
 import time
 from pyglet.window import mouse
 from utils import mat2np
+from scipy.spatial.transform import Rotation as R
 
 #TODO:
-#	   Inverse Kinematics
+#	   Forward Kinematics
+
 #			Make hand the base joint, place everything else relative to hand
 
+#			Get distance between endpoint and shoulder
+
+
 #	   Whole body rotation
+
 #			estimate joint positions twice, figure out what human orientation would work to allow such successive joint angles
+
+#			
 
 class viz:
 	"""Human visualization class made using OpenGL
@@ -115,46 +123,39 @@ class viz:
 
 		glEnable(GL_DEPTH_TEST)
 
-		# self.draw_base(self.base)
-		# self.draw_link0(self.link0, 0, 0, 0, link0RotA)
-		# self.draw_link1(self.link1, 0, 0, 0,link0RotA, link1RotA)
-		# self.draw_link1(self.link1Clear, 0, 0, 0,link0RotB, link1RotB, wireframe=True)
-		# self.draw_link2(self.link2, xElbA, yElbA, zElbA, link0RotA, link1RotA, link2RotA)
-		# self.draw_link2(self.link2Clear, xElbB, yElbB, zElbB, link0RotB, link1RotB, link2RotB, wireframe=True)
-		# self.draw_endpoint(self.ball,link0RotB, link1RotB, link2RotB)
 		x = 0 #self.pathA[self.i,0] * 100
 		y = 0 #self.pathA[self.i,1] * 100
 		z = 0 #self.pathA[self.i,2] * 100
-		bodyRot = self.i/ 10
+		bodyRot =0 # self.i/ 3
 		j0 = 0 #self.i /2
 		j1 = 0 #self.i /2
 		j2 = 0# self.i /2
 		
-		j3 = self.i / 5 #chicken wing
-		j4 = -self.i / 5
-		j5 = -self.i / 5
-		j6 = self.i / 2
+		j3 =  self.i / 3 #chicken wing
+		j4 = -self.i / 3 # butterfly 
+		j5 = - self.i / 2 # forward arm raise
+		j6 =  self.i #elbow
 		j7 = self.i / 5 #wrist twist
 		j8 = 30 + self.i / 2 #wrist in (shooting a basketball) - add 30 to start out straight
 		#TODO - add in joint angles
-		self.draw_human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot)
+		self.draw_human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False)
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 		
 		time.sleep(0.01)
 
-	def draw_human(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot):
+	def draw_human(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False):
 		
 		'''inputs: xyz of HIPS, all human joint angles, human body rotation'''
 
-		self.draw_legs(x, y, z, bodyRot)
-		shoulderx, shouldery, shoulderz = self.draw_torso(x, y, z, j0, j1, j2, bodyRot)
-		elbowx, elbowy, elbowz = self.draw_upper_arm(shoulderx, shouldery, shoulderz, j0, j1, j2, j3, j4, j5, bodyRot)
-		wristx, wristy, wristz = self.draw_lower_arm(elbowx, elbowy, elbowz, j0, j1, j2, j3, j4, j5, j6, bodyRot)
-		self.draw_hand(wristx, wristy, wristz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot)
+		wireframe = transparent
 
-		# self.draw_hand(self.hand, bodyRot, x, y, z, j7, j8)
-		# self.draw_lower_arm(self.lowerArm, bodyRot, x, y, z, j7, j8)
+		self.draw_legs(x, y, z, bodyRot, wireframe)
+		shoulderx, shouldery, shoulderz = self.draw_torso(x, y, z, j0, j1, j2, bodyRot, wireframe)
+		elbowx, elbowy, elbowz = self.draw_upper_arm(shoulderx, shouldery, shoulderz, j0, j1, j2, j3, j4, j5, bodyRot, wireframe)
+		wristx, wristy, wristz = self.draw_lower_arm(elbowx, elbowy, elbowz, j0, j1, j2, j3, j4, j5, j6, bodyRot, wireframe)
+		self.draw_hand(wristx, wristy, wristz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe)
+
 
 	def draw_legs(self, x, y, z, bodyRot, wireframe = False):
 		glLoadIdentity()
@@ -170,13 +171,7 @@ class viz:
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
 
-		#shoulder to hips offset = [-7.8, 14.76, -2.1745]
-		#dist shoulder to hips = 16.83
-		dist = 16.83
-		shoulderx = x - 7.8
-		shouldery = y + 14.76 
-		shoulderz = z - 2.1745 
-		glTranslatef(shoulderx, shouldery, shoulderz)
+
 
 		#TODO actual rotation matrices
 
@@ -185,7 +180,13 @@ class viz:
 		glRotatef(j2, 1, 0, 0)
 		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
 
-		
+		#shoulder to hips offset = [-7.8, 14.76, -2.1745]
+		#dist shoulder to hips = 16.83
+		dist = 16.83
+		shoulderx = x - 7.8
+		shouldery = y + 14.76 
+		shoulderz = z - 2.1745 
+		glTranslatef(shoulderx, shouldery, shoulderz)
 
 		if wireframe:
 			glPolygonMode( GL_FRONT, GL_POINT)
@@ -200,26 +201,34 @@ class viz:
 		#copypasta from draw_torso--------------------
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
-		glTranslatef(shoulderx, shouldery, shoulderz)
 		glRotatef(j0, 0, 1, 0)
 		glRotatef(j1, 0, 0, 1)
 		glRotatef(j2, 1, 0, 0)
 		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
+		glTranslatef(shoulderx, shouldery, shoulderz)
 		#--------------------------------------------
 
 		glRotatef(j3, 0, 1, 0)
 		glRotatef(j4, 0, 0, 1)
 		glRotatef(j5, 1, 0, 0)
 
-		length = 10 #length of upper arm
-		elbowx = shoulderx
-		elbowy = shouldery-length*np.cos(np.deg2rad(j5))*np.cos(np.deg2rad(j4))
-		elbowz = shoulderz
-
+		#upper arm offset [-0.0 10.26 -0.9]
 		if wireframe:
 			glPolygonMode( GL_FRONT, GL_POINT)
 		visualization.draw(self.upperArm)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+		#using rotation matrix------------------------------------- 
+		r3 = R.from_euler('y', j3, degrees = True) #chicken wing
+		r4 = R.from_euler('z', j4, degrees = True) #butterfly motion
+		r5 = R.from_euler('x', j5, degrees = True) #forwad arm raise
+
+		shoulder2elbow = r3*r4*r5
+		dx, dy, dz = shoulder2elbow.apply([0.0, -10.26, -0.9])
+
+		elbowx = dx + shoulderx
+		elbowy = dy + shouldery
+		elbowz = dz + shoulderz
 
 		return elbowx, elbowy, elbowz
 
@@ -234,11 +243,9 @@ class viz:
 		glRotatef(j2, 1, 0, 0)
 		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
 		#--------------------------------------------
-
 		glRotatef(j3, 0, 1, 0)
 		glRotatef(j4, 0, 0, 1)
 		glRotatef(j5, 1, 0, 0)
-
 		glRotatef(j6, -1, 0, 0) #TODO - debug this
 
 
@@ -247,9 +254,19 @@ class viz:
 		visualization.draw(self.lowerArm)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-		wristx = elbowx
-		wristy = elbowy -10
-		wristz = elbowz
+		#lower arm offset [-1.79 -10.55 0.61]
+		r3 = R.from_euler('y', j3, degrees = True) #chicken wing
+		r4 = R.from_euler('z', j4, degrees = True) #butterfly motion
+		r5 = R.from_euler('x', j5, degrees = True) #forwad arm raise
+		r6 = R.from_euler('x', -j6, degrees = True) #elbow bend
+
+		elbow2wrist = r3*r4*r5*r6
+		# dx, dy, dz = elbow2wrist.apply([1.79, -10.55, 0.61])
+		dx, dy, dz = elbow2wrist.apply([0, -10.55, 0])
+
+		wristx = elbowx + dx
+		wristy = elbowy + dy
+		wristz = elbowz + dz
 
 		return wristx, wristy, wristz
 

@@ -8,3 +8,7 @@
 	Sijin Li, Antoni B. Chan
 
 	http://visal.cs.cityu.edu.hk/static/pubs/conf/accv14-3dposecnn.pdf
+
+rotation matrix lookup 
+
+	https://open.gl/transformations
