@@ -6,16 +6,18 @@ def mat2np(trajPath):
 
 	'''converts text file output from matlab matrix to np array'''
 	
+	numJoints = 9
+
 	traj = np.loadtxt(open(trajPath, "rb"), delimiter=",")
 
 	trajPts = np.shape(traj)[0] #points per trajectory
-	numTraj = np.shape(traj)[1]//3 #number of total trajectories
+	numTraj = np.shape(traj)[1]//numJoints #number of total trajectories
 
 	#reshape traj data into 3d numpy array
-	t = np.zeros([trajPts,3,numTraj])
+	t = np.zeros([trajPts,numJoints,numTraj])
 	for j in range(np.shape(traj)[0]):
-		for i in range(np.shape(traj)[1]//3):
-			t[j,:,i] = traj[j,3*i:3*(i+1)]
+		for i in range(np.shape(traj)[1]//numJoints):
+			t[j,:,i] = traj[j,numJoints*i:numJoints*(i+1)]
 
 	#swap axis so batch size is first axis (for TF)
 	t = np.swapaxes(t,0,2)

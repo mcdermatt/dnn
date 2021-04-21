@@ -44,6 +44,7 @@ while m <= (floor(numTraj/trajPerChunk))
         i = 1;
     while i <= trajPerChunk
         try
+                        
             %get random joint angles within limits
             j0pi = rand()*20-10;
             j1pi = rand()*20 - 10;
@@ -103,11 +104,18 @@ while m <= (floor(numTraj/trajPerChunk))
             end
 
             %get joint angles at final point
-            jointPos(i,:) = [simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
+            jointPos(i,:) = (180 / pi) *[simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
                 simOut.j4pf(s) simOut.j5pf(s) simOut.j6pf(s) simOut.j7pf(s) simOut.j8pf(s)] * 180 / pi ...
                 + [j0pi j1pi j2pi j3pi j4pi j5pi j6pi j7pi j8pi];
             count = count + 1
             i = i + 1;
+        
+            %array for storing position of joints at each timestep
+            jointPath = (180 / pi) *[simOut.j0pf simOut.j1pf simOut.j2pf simOut.j3pf ...
+                simOut.j4pf simOut.j5pf simOut.j6pf simOut.j7pf simOut.j8pf] ...
+                + [j0pi j1pi j2pi j3pi j4pi j5pi j6pi j7pi j8pi];
+            jointPath = jointPath(1:167:end,:);
+            
         catch
             "error"
             pause(0.25)
@@ -120,6 +128,9 @@ while m <= (floor(numTraj/trajPerChunk))
 
 %     csvwrite('traj_9DOF_100k.txt', trajTotal)
 %     csvwrite('jointPos_9DOF_100k.txt',jointPosTotal)
+%   10k/60 = 167
+    csvwrite('jointPath.txt', jointPath);
+
     m = m+1;
 end
 

@@ -33,7 +33,7 @@ class viz:
 		self.pathA = path
 		self.pathB = path2
 		self.lenPath = len(path)
-		# self.tp = trajPlotter(self.pathA,self.pathB)
+		print("shape is" ,np.shape(self.pathA))
 
 		if use_GPU is False:
 			self.window = pyglet.window.Window(width=1280,height=720)
@@ -104,8 +104,8 @@ class viz:
 			self.label.draw()
 		glTranslatef(self.dx/20,self.dy/20,0)
 		glRotatef(self.theta/5,0,1,0)
-		#TODO: Fix zooming
-		glScalef(abs(self.dCam/500),abs(self.dCam/500),abs(self.dCam/500))
+		#Zooming
+		glScalef(abs(-self.dCam/500),abs(-self.dCam/500),abs(-self.dCam/500))
 
 		glMatrixMode(GL_MODELVIEW)
 
@@ -129,16 +129,16 @@ class viz:
 		y = 0 #self.pathA[self.i,1] * 100
 		z = 0 #self.pathA[self.i,2] * 100
 		bodyRot = 0 # self.i/ 3
-		j0 = self.i / 10
-		j1 = self.i / 10
-		j2 = self.i / 10
+		j0 = self.pathA[self.i,0] #self.i / 10
+		j1 = self.pathA[self.i,1] #self.i / 10
+		j2 = self.pathA[self.i,2] #self.i / 10
 		
-		j3 =  self.i / 3 #chicken wing
-		j4 = -self.i / 3 # butterfly 
-		j5 = - self.i / 2 # forward arm raise
-		j6 =  self.i #elbow
-		j7 = self.i / 5 #wrist twist
-		j8 = 30 + self.i / 2 #wrist in (shooting a basketball) - add 30 to start out straight
+		j3 =  self.pathA[self.i,3] #self.i / 3 #chicken wing
+		j4 = self.pathA[self.i,4] #-self.i / 3 # butterfly 
+		j5 = self.pathA[self.i,5] #- self.i / 2 # forward arm raise
+		j6 =  self.pathA[self.i,6] #self.i #elbow
+		j7 = self.pathA[self.i,7] #self.i / 5 #wrist twist
+		j8 = self.pathA[self.i,8] #30 + self.i / 2 #wrist in (shooting a basketball) - add 30 to start out straight
 		#TODO - add in joint angles
 		self.draw_human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = True)
 
@@ -348,8 +348,8 @@ class viz:
 
 if __name__ == "__main__":
 
-	filename1 = "simulation/data/traj_random1k.txt"
-	filename2 = "simulation/data/traj_random1k.txt"
+	filename1 = "simulation/data/jointPath.txt"
+	filename2 = "simulation/data/jointPath.txt"
 
 	path1 = mat2np(filename1)
 	path2 = mat2np(filename2)
