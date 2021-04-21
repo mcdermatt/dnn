@@ -47,9 +47,11 @@ class viz:
 
 		self.legs = Wavefront('simulation/assets/hipsAndLegs.obj')
 		self.torso = Wavefront('simulation/assets/torso.obj')
+		self.leftArm = Wavefront('simulation/assets/leftArm.obj')
 		self.upperArm = Wavefront('simulation/assets/upperArm.obj')
 		self.lowerArm = Wavefront('simulation/assets/lowerArm.obj')
 		self.hand = Wavefront('simulation/assets/hand.obj')
+		self.head = Wavefront('simulation/assets/head.obj')
 		self.ball = Wavefront('simulation/assets/ball.obj')
 		greenCheck = pyglet.image.load('simulation/assets/greenCheck.png')
 		self.gc = pyglet.sprite.Sprite(img=greenCheck)
@@ -63,7 +65,7 @@ class viz:
 		self.rx.y = 12
 		grid = pyglet.image.load('simulation/assets/grid.png')
 		self.grid = pyglet.sprite.Sprite(img = grid)
-		self.grid.scale = 0.1
+		self.grid.scale = 0.25
 
 		self.l1 = 13.25
 		self.l2 = 13.25
@@ -76,7 +78,7 @@ class viz:
 		self.dx = 0
 		self.dy = 0
 		self.theta = 0
-		self.dCam = 0
+		self.dCam = 500
 		self.label = None
 
 		self.spf = 1/60 #seconds per frame
@@ -103,21 +105,21 @@ class viz:
 		glTranslatef(self.dx/20,self.dy/20,0)
 		glRotatef(self.theta/5,0,1,0)
 		#TODO: Fix zooming
-		# glTranslatef(np.sin(np.deg2rad(self.theta/5))*self.dCam/5,0,np.cos(np.deg2rad(self.theta/5))*self.dCam/5)
+		glScalef(abs(self.dCam/500),abs(self.dCam/500),abs(self.dCam/500))
 
 		glMatrixMode(GL_MODELVIEW)
 
 		#draw ground plane
 		glRotatef(90,1,0,0)
-		glTranslatef(-50,-50,20)
+		glTranslatef(-100,-100,40)
 		self.grid.draw()
 		glRotatef(90,-1,0,0)
-		glTranslatef(50,50,-20)
+		glTranslatef(100,100,-40)
 
 		lightfv = ctypes.c_float * 4
 
 		#glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-1.0, 1.0*np.sin(rotation*0.1), 1.0, 0.0))
-		# glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.5,0.5,0.5,0.1))
+		glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.5,0.5,0.5,0.1))
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.5, 0.5, 0.5, 0.6))
 		glLightfv(GL_LIGHT0, GL_SPECULAR, lightfv(0.0,0.0,0.0,0.1))
 
@@ -126,10 +128,10 @@ class viz:
 		x = 0 #self.pathA[self.i,0] * 100
 		y = 0 #self.pathA[self.i,1] * 100
 		z = 0 #self.pathA[self.i,2] * 100
-		bodyRot =0 # self.i/ 3
-		j0 = 0 #self.i /2
-		j1 = 0 #self.i /2
-		j2 = 0# self.i /2
+		bodyRot = 0 # self.i/ 3
+		j0 = self.i / 10
+		j1 = self.i / 10
+		j2 = self.i / 10
 		
 		j3 =  self.i / 3 #chicken wing
 		j4 = -self.i / 3 # butterfly 
@@ -138,7 +140,7 @@ class viz:
 		j7 = self.i / 5 #wrist twist
 		j8 = 30 + self.i / 2 #wrist in (shooting a basketball) - add 30 to start out straight
 		#TODO - add in joint angles
-		self.draw_human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False)
+		self.draw_human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = True)
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 		
@@ -171,25 +173,37 @@ class viz:
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
 
+		#shoulder to hips offset = [-7.8, 14.76, -2.1745]
+		rbody = R.from_euler('y', bodyRot, degrees = True)
+		r0 = R.from_euler('y', j0, degrees = True)
+		r1 = R.from_euler('z', j1, degrees = True)
+		r2 = R.from_euler('x', j2, degrees = True)
 
-
-		#TODO actual rotation matrices
+		base2shoulder = rbody#*r0*r1*r2
+		shoulderx, shouldery, shoulderz = base2shoulder.apply([-7.8, 14.76, -2.17])
+		leftShoulderx, leftShouldery, leftShoulderz = base2shoulder.apply([7.8, 14.76, -2.17])
+		headx, heady, headz = base2shoulder.apply([0.0, 22, -1.0])
 
 		glRotatef(j0, 0, 1, 0)
 		glRotatef(j1, 0, 0, 1)
 		glRotatef(j2, 1, 0, 0)
-		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
-
-		#shoulder to hips offset = [-7.8, 14.76, -2.1745]
-		#dist shoulder to hips = 16.83
-		dist = 16.83
-		shoulderx = x - 7.8
-		shouldery = y + 14.76 
-		shoulderz = z - 2.1745 
-		glTranslatef(shoulderx, shouldery, shoulderz)
 
 		if wireframe:
 			glPolygonMode( GL_FRONT, GL_POINT)
+		#draw left arm
+		glTranslatef(leftShoulderx, leftShouldery, leftShoulderz)
+		visualization.draw(self.leftArm)
+		glTranslatef(-leftShoulderx, -leftShouldery, -leftShoulderz)
+
+		#draw head
+		glTranslatef(headx, heady, headz)
+		visualization.draw(self.head)
+		glTranslatef(-headx, -heady, -headz)
+
+		glTranslatef(shoulderx, shouldery, shoulderz)
+		glRotatef(bodyRot,0,1,0)
+
+		
 		visualization.draw(self.torso)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
@@ -204,8 +218,8 @@ class viz:
 		glRotatef(j0, 0, 1, 0)
 		glRotatef(j1, 0, 0, 1)
 		glRotatef(j2, 1, 0, 0)
-		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
 		glTranslatef(shoulderx, shouldery, shoulderz)
+		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
 		#--------------------------------------------
 
 		glRotatef(j3, 0, 1, 0)
@@ -219,11 +233,12 @@ class viz:
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
 		#using rotation matrix------------------------------------- 
+		rbody = R.from_euler('y', bodyRot, degrees = True)
 		r3 = R.from_euler('y', j3, degrees = True) #chicken wing
 		r4 = R.from_euler('z', j4, degrees = True) #butterfly motion
 		r5 = R.from_euler('x', j5, degrees = True) #forwad arm raise
 
-		shoulder2elbow = r3*r4*r5
+		shoulder2elbow = rbody*r3*r4*r5
 		dx, dy, dz = shoulder2elbow.apply([0.0, -10.26, -0.9])
 
 		elbowx = dx + shoulderx
@@ -236,11 +251,10 @@ class viz:
 				#copypasta from draw_torso--------------------
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
-		glTranslatef(elbowx,elbowy,elbowz)
-
 		glRotatef(j0, 0, 1, 0)
 		glRotatef(j1, 0, 0, 1)
 		glRotatef(j2, 1, 0, 0)
+		glTranslatef(elbowx,elbowy,elbowz)
 		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
 		#--------------------------------------------
 		glRotatef(j3, 0, 1, 0)
@@ -255,12 +269,13 @@ class viz:
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
 		#lower arm offset [-1.79 -10.55 0.61]
+		rbody = R.from_euler('y', bodyRot, degrees = True)
 		r3 = R.from_euler('y', j3, degrees = True) #chicken wing
 		r4 = R.from_euler('z', j4, degrees = True) #butterfly motion
 		r5 = R.from_euler('x', j5, degrees = True) #forwad arm raise
 		r6 = R.from_euler('x', -j6, degrees = True) #elbow bend
 
-		elbow2wrist = r3*r4*r5*r6
+		elbow2wrist = rbody*r3*r4*r5*r6
 		# dx, dy, dz = elbow2wrist.apply([1.79, -10.55, 0.61])
 		dx, dy, dz = elbow2wrist.apply([0, -10.55, 0])
 
@@ -274,11 +289,10 @@ class viz:
 
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
-		glTranslatef(wristx,wristy,wristz)
-
 		glRotatef(j0, 0, 1, 0)
 		glRotatef(j1, 0, 0, 1)
 		glRotatef(j2, 1, 0, 0)
+		glTranslatef(wristx,wristy,wristz)
 		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
 		#--------------------------------------------
 
