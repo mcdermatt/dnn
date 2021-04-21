@@ -3,10 +3,10 @@
 j0pi = 0; %spine twist
 j1pi = 0; % hips side
 j2pi = 0; %bend over
-j3pi = -40; %chicken wing
-j4pi = 20; %butterfly
-j5pi = 40; %curl
-j6pi = -10; %elbow
+j3pi = -90; %chicken wing
+j4pi = 0; %butterfly
+j5pi = 0; %curl
+j6pi = 0; %elbow
 
 j0vi = 0;
 j1vi = 0;

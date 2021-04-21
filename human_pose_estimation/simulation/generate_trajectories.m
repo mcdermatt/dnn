@@ -114,6 +114,7 @@ while m <= (floor(numTraj/trajPerChunk))
             jointPath = (180 / pi) *[simOut.j0pf simOut.j1pf simOut.j2pf simOut.j3pf ...
                 simOut.j4pf simOut.j5pf simOut.j6pf simOut.j7pf simOut.j8pf] ...
                 + [j0pi j1pi j2pi j3pi j4pi j5pi j6pi j7pi j8pi];
+            %   10k/60 = 167
             jointPath = jointPath(1:167:end,:);
             
         catch
@@ -128,7 +129,7 @@ while m <= (floor(numTraj/trajPerChunk))
 
 %     csvwrite('traj_9DOF_100k.txt', trajTotal)
 %     csvwrite('jointPos_9DOF_100k.txt',jointPosTotal)
-%   10k/60 = 167
+
     csvwrite('jointPath.txt', jointPath);
 
     m = m+1;
