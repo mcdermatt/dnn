@@ -146,7 +146,7 @@ class viz:
 
 
 		#draw actual human position
-		px, py, pz = self.human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = True, draw = True)
+		px, py, pz = self.human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = True)
 		#draw ball in hand of human
 		self.draw_endpoint(px,py,pz, wireframe = False)
 
@@ -156,12 +156,12 @@ class viz:
 										45 + self.truePath[-1,8],bodyRot = 0, draw = False)
 
 		#get estimate of human configuration from network - run once without draw to get position of hand relative to base
-		pxEst, pyEst, pzEst = self.human(0,0,0, self.est[0], self.est[1], self.est[2], self.est[3], self.est[4], self.est[5],
-											self.est[6], self.est[7], self.est[8], bodyRot = 0, transparent=False, draw = False)
+		pxEst, pyEst, pzEst = self.human(0,0,0, -self.est[0], -self.est[1], self.est[2], self.est[3], -self.est[4], -self.est[5],
+											-self.est[6], -self.est[7], 45 + self.est[8], bodyRot = 0, transparent=False, draw = False)
 
 		#run a second time, translating so the hand of the human is located at the end of the ball trajectory
-		self.human(pxFinal-pxEst, pyFinal-pyEst, pzFinal-pzEst, self.est[0], self.est[1], 
-			self.est[2], self.est[3], self.est[4], self.est[5],	self.est[6], self.est[7], self.est[8], bodyRot = 0, transparent=False, draw = True)
+		self.human(pxFinal-pxEst, pyFinal-pyEst, pzFinal-pzEst, -self.est[0], -self.est[1], 
+			self.est[2], self.est[3], -self.est[4], -self.est[5], -self.est[6], -self.est[7], 45 + self.est[8], bodyRot = 0, transparent=True, draw = True)
 
 		#draw ball from file
 		# self.draw_endpoint(self.pathBall[self.i%9,0],self.pathBall[self.i%9,1],self.pathBall[self.i%9,2]) #debug
