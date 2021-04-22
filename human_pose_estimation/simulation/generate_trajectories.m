@@ -127,10 +127,10 @@ while m <= (floor(numTraj/trajPerChunk))
     %jointPosTotal = [jointPosTotal; jointPos];
     jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
 
-%     csvwrite('traj_9DOF_100k.txt', trajTotal)
-%     csvwrite('jointPos_9DOF_100k.txt',jointPosTotal)
+    csvwrite('data/traj_9DOF_1.txt', trajTotal)
+    csvwrite('data/jointPos_9DOF_1.txt',jointPosTotal)
 
-    csvwrite('jointPath.txt', jointPath);
+    csvwrite('data/jointPath.txt', jointPath);
 
     m = m+1;
 end
