@@ -331,6 +331,8 @@ def Net4(**kwargs):
 
     '''for constant linear force data. 10 points at constant intervals with position and angles
        USE WITH 9DOF model
+	
+		*** NEED EXTRA OUTPUT DIM IF USING BODY ROTATION DATA ***
 
     '''
 
@@ -430,10 +432,10 @@ def Net4(**kwargs):
     X = keras.layers.BatchNormalization()(X)
     X = keras.layers.Dense(units = 64, activation = 'relu')(X) 
     X = keras.layers.BatchNormalization()(X)
-    output = keras.layers.Dense(units=9, activation = 'tanh')(X)
+    output = keras.layers.Dense(units=10, activation = 'tanh')(X)
 
     #rescale output to the range of motion of each joint
-    output = output*tf.constant([25., 30., 33.75, 55. , 60., 180., 65., 90., 55.]) + tf.constant([0., 0., 26.25, -35., 30., 0., -65., 0., 0.])
+    output = output*tf.constant([25., 30., 33.75, 55. , 60., 180., 65., 90., 55., 360.]) + tf.constant([0., 0., 26.25, -35., 30., 0., -65., 0., 0., -180.])
 
     model = tf.keras.Model(inputs,output)
 

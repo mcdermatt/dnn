@@ -19,7 +19,7 @@
 %     -> Fix bug with wrist position not updating with fast restart active
 
 beep off
-numTraj = 1;
+numTraj = 2;
 trajPerChunk = 1;
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);

@@ -429,7 +429,7 @@ if __name__ == "__main__":
 	filename2 = "simulation/data/traj_9DOF_1.txt"
 
 	#this is the actual configuration of the human that we are trying to figure out
-	actual_joint_trajectory = mat2npJoints(filename1) #mat2npy only works for joints...
+	actual_joint_trajectory = mat2npJoints(filename1) #TODO debug this
 
 	#this is the trajectory of the ball that we are using to 
 	endpoint_trajectory = mat2npEndpoint(filename2)[0]
