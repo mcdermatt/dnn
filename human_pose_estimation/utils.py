@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation as R
 
 def mat2npJoints(trajPath):
 
-	'''converts text file output from matlab matrix to np array'''
+	'''converts MatLab output text file of actual joint trajectories to np array'''
 	
 	numJoints = 9
 
@@ -52,7 +52,7 @@ def mat2npEndpoint(file, numTraj = 2):
 
 	return t
 
-def add_body_rotation(trajectory_file, joint_pos_file, numTraj):
+def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj):
 
 	''' Endpoint trajectory data from SimScape Multibody simulation assumes 
 		coordinate frame is relative to the hips of the human. This means that all
@@ -71,13 +71,13 @@ def add_body_rotation(trajectory_file, joint_pos_file, numTraj):
 	#TODO - use this as a cheat to get more data
 
 	'''
-	# numTraj = 1000
 	numPts = 10 #number of individual points in each endpoint trajectory
 
-	traj = mat2npEndpoint(trajectory_file, numTraj)
+	traj = mat2npEndpoint(endpoint_trajectory, numTraj)
 	# print(np.shape(traj))
 	joints = np.loadtxt(open(joint_pos_file, "rb"), delimiter=",")
-	# print(np.shape(joints))
+	# print(np.shape(joints)[1])
+	# print("joints ", joints)
 
 	#joints with body rotation
 	jbr = np.zeros([numTraj, 10])
@@ -87,9 +87,15 @@ def add_body_rotation(trajectory_file, joint_pos_file, numTraj):
 	for i in range(numTraj):
 		
 		t = traj[i] #[x, y, z, thetax?, thetay?, thetaz?]
-		j = joints[i]
 		
-		rotation = np.random.randn()*90
+		#things get weird if only 1 trial is loaded
+		try: 
+			dummy = np.shape(joints)[1] #idk there's probably a cleaner way to do this
+			j = joints[i]
+		except:
+			j = joints
+
+		rotation = np.random.rand()*180 - 90
 		rbody = R.from_euler('y', rotation, degrees = True)
 
 		for m in range(numPts):			

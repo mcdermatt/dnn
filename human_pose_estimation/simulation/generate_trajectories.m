@@ -19,7 +19,7 @@
 %     -> Fix bug with wrist position not updating with fast restart active
 
 beep off
-numTraj = 2;
+numTraj = 1;
 trajPerChunk = 1;
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
@@ -104,7 +104,7 @@ while m <= (floor(numTraj/trajPerChunk))
             end
 
             %get joint angles at final point
-            jointPos(i,:) = (180 / pi) *[simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
+            jointPos(i,:) = [simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
                 simOut.j4pf(s) simOut.j5pf(s) simOut.j6pf(s) simOut.j7pf(s) simOut.j8pf(s)] * 180 / pi ...
                 + [j0pi j1pi j2pi j3pi j4pi j5pi j6pi j7pi j8pi];
             count = count + 1

@@ -132,7 +132,7 @@ class viz:
 		x = 0
 		y = 0
 		z = 0
-		bodyRot = 0 #self.i/ 3
+		bodyRot = 85 #TODO update this value in actual trajecory when augmenting data
 		j0 = -self.truePath[self.i,0] #self.i / 10
 		j1 = -self.truePath[self.i,1] #self.i / 10
 		j2 =  self.truePath[self.i,2] #self.i / 10
@@ -148,20 +148,20 @@ class viz:
 		#draw actual human position
 		px, py, pz = self.human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = True)
 		#draw ball in hand of human
-		self.draw_endpoint(px,py,pz, wireframe = False)
+		self.draw_endpoint(px,py,pz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False)
 
 		#get coords of final position of actual human
 		pxFinal, pyFinal, pzFinal = self.human(0,0,0, -self.truePath[-1,0], -self.truePath[-1,1], self.truePath[-1,2], self.truePath[-1,3],
 										-self.truePath[-1,4], -self.truePath[-1,5], -self.truePath[-1,6], -self.truePath[-1,7],
-										45 + self.truePath[-1,8],bodyRot = 0, draw = False)
+										45 + self.truePath[-1,8],bodyRot, draw = False)
 
 		#get estimate of human configuration from network - run once without draw to get position of hand relative to base
 		pxEst, pyEst, pzEst = self.human(0,0,0, -self.est[0], -self.est[1], self.est[2], self.est[3], -self.est[4], -self.est[5],
-											-self.est[6], -self.est[7], 45 + self.est[8], bodyRot = 0, transparent=False, draw = False)
+											-self.est[6], -self.est[7], 45 + self.est[8], self.est[9], transparent=False, draw = False)
 
 		#run a second time, translating so the hand of the human is located at the end of the ball trajectory
 		self.human(pxFinal-pxEst, pyFinal-pyEst, pzFinal-pzEst, -self.est[0], -self.est[1], 
-			self.est[2], self.est[3], -self.est[4], -self.est[5], -self.est[6], -self.est[7], 45 + self.est[8], bodyRot = 0, transparent=True, draw = True)
+			self.est[2], self.est[3], -self.est[4], -self.est[5], -self.est[6], -self.est[7], 45 + self.est[8], self.est[9], transparent=True, draw = True)
 
 		#draw ball from file
 		# self.draw_endpoint(self.pathBall[self.i%9,0],self.pathBall[self.i%9,1],self.pathBall[self.i%9,2]) #debug
@@ -383,10 +383,21 @@ class viz:
 
 		return palmx, palmy, palmz
 
-	def draw_endpoint(self, x, y, z, wireframe = False, draw = True):
+	def draw_endpoint(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False, draw = True):
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
 		glTranslatef(x, y, z)
+		glRotatef(bodyRot,0,1,0) #[amount, x, y, z]??
+		glRotatef(j0, 0, 1, 0)
+		glRotatef(j1, 0, 0, 1)
+		glRotatef(j2, 1, 0, 0)
+		glRotatef(j3, 0, 0, 1)
+		glRotatef(j4, 0, 1, 0)
+		glRotatef(j5, 1, 0, 0)
+
+		glRotatef(j6, -1, 0, 0) #idk here
+		glRotatef(j7, 0, 1, 0) #idk here
+		glRotatef(j8, 0, 0, 1) #idk here
 		if wireframe:
 			glPolygonMode( GL_FRONT, GL_POINT)
 
@@ -425,18 +436,19 @@ class viz:
 
 if __name__ == "__main__":
 
-	filename1 = "simulation/data/jointPath.txt"
-	filename2 = "simulation/data/traj_9DOF_1.txt"
+	filename1 = "simulation/data/jointPath.txt" 	#ground truth movement traj
+	filename2 = "simulation/data/traj_9DOF_1.txt"	#
 
 	#this is the actual configuration of the human that we are trying to figure out
-	actual_joint_trajectory = mat2npJoints(filename1) #TODO debug this
+	actual_joint_trajectory = mat2npJoints(filename1)
 
-	#this is the trajectory of the ball that we are using to 
+	#this is the trajectory of the ball that we are using to make our estimate 
 	endpoint_trajectory = mat2npEndpoint(filename2)[0]
 
 	#how the DNN thinks the human is configured
 	estimate = np.load("simulation/data/prediction.npy")[0]
 
+	#TODO - need to rotate body of ground truth human
 	viz = viz(actual_joint_trajectory, endpoint_trajectory *10, estimate, use_GPU=True)
 
 	viz.start()

@@ -151,3 +151,5 @@ Are there any disadvantages to having residual connections in a network?
 	All they do is make layers trend towards identity rather than trend towards zero, right?
 
 Network splits halfway through?
+
+Better to use rand() over randn() ->batch normalization??
