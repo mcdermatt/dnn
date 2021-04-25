@@ -52,7 +52,7 @@ def mat2npEndpoint(file, numTraj = 2):
 
 	return t
 
-def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj):
+def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, actual_traj = None):
 
 	''' Endpoint trajectory data from SimScape Multibody simulation assumes 
 		coordinate frame is relative to the hips of the human. This means that all
@@ -75,28 +75,29 @@ def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj):
 
 	traj = mat2npEndpoint(endpoint_trajectory, numTraj)
 	# print(np.shape(traj))
-	joints = np.loadtxt(open(joint_pos_file, "rb"), delimiter=",")
-	# print(np.shape(joints)[1])
-	# print("joints ", joints)
+	joints = np.loadtxt(open(joint_pos_file, "rb"), delimiter=",", ndmin = 2) #ndmin avoids weird case with only one traj
+	# print("shape of joints: ", np.shape(joints))
 
 	#joints with body rotation
-	jbr = np.zeros([numTraj, 10])
+	jbr = np.zeros([numTraj*mult, 10])
 	#trajectories with body rotation
-	tbr = np.zeros([numTraj, numPts, 6])
+	tbr = np.zeros([numTraj*mult, numPts, 6])
 
-	for i in range(numTraj):
-		
-		t = traj[i] #[x, y, z, thetax?, thetay?, thetaz?]
-		
-		#things get weird if only 1 trial is loaded
-		try: 
-			dummy = np.shape(joints)[1] #idk there's probably a cleaner way to do this
-			j = joints[i]
-		except:
-			j = joints
+	if actual_traj:
+		at = mat2npJoints(actual_traj)
 
-		rotation = np.random.rand()*180 - 90
+	for i in range(numTraj*mult):
+		
+		t = traj[int(np.floor(i/mult))] #[x, y, z, thetax?, thetay?, thetaz?]
+		
+		j = joints[int(np.floor(i/mult))]
+
+		rotation = np.random.rand()*360 - 180
 		rbody = R.from_euler('y', rotation, degrees = True)
+
+		#store rotation data with ground truth joint trajectory
+		if actual_traj:
+			at = np.append(at, np.ones([np.shape(at)[0],1])*rotation, axis = 1)
 
 		for m in range(numPts):			
 			#ACCOUNT FOR EFFECT OF AUGMENTING DATA ON JOINT POSITIONS
@@ -106,18 +107,23 @@ def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj):
 			#	Actually don't do this- it gives away too much information!!?
 			# t[j,4] = t[j,4] + rotation
 
-		jbr[i,:9] = j
-		jbr[i,9] = rotation #saves how much was rotated in the jointpos array
+		jbr[int(np.floor(i/mult)),:9] = j
+		jbr[int(np.floor(i/mult)),9] = rotation #saves how much was rotated in the jointpos array
 
-		tbr[i] = t
+		tbr[int(np.floor(i/mult))] = t
 
 	# print(tbr)
 	# print(jbr)
 
 	np.save("simulation/data/tbr.npy", tbr)
 	np.save("simulation/data/jbr.npy", jbr)
+	if actual_traj:
+		np.save("simulation/data/at.npy", at)
+		print("saved augmented data as tbr, jbr, at")
+	else:
+		print("saved augmented data as tbr, jbr")
 
-	print("saved augmented data as tbr, jbr")
-
+	# print(tbr)
+	# print(np.shape(jbr))
 	return tbr, jbr
 

@@ -19,8 +19,8 @@
 %     -> Fix bug with wrist position not updating with fast restart active
 
 beep off
-numTraj = 1;
-trajPerChunk = 1;
+numTraj = 5;
+trajPerChunk = 5;
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
 jointPosTotal = zeros(numTraj,9);
@@ -91,9 +91,18 @@ while m <= (floor(numTraj/trajPerChunk))
             fx = [0 mult*randn()];
             fy = [0 mult*randn()];
             fz = [0 mult*randn()];
-%             simOut = sim('human7DOF.slx');
-            simOut = sim('human9DOF.slx');
-
+            model = 'human9DOF.slx';
+%             simOut = sim(model);
+            
+            %using parallel simulation & simulation manager
+            load_system(model);
+            numSims = 4;
+            in(1:numSims) = Simulink.SimulationInput(model);
+            for i = 1:numSims;
+                in(i) = setBlockParameter(in(i), [model '/
+            
+            simOut = parsim(in);
+    
             startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
 
             %get array of xyz points in trajectory
@@ -127,10 +136,9 @@ while m <= (floor(numTraj/trajPerChunk))
     %jointPosTotal = [jointPosTotal; jointPos];
     jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
 
-    csvwrite('data/traj_9DOF_1.txt', trajTotal)
-    csvwrite('data/jointPos_9DOF_1.txt',jointPosTotal)
-
-    csvwrite('data/jointPath.txt', jointPath);
+%     csvwrite('data/traj_9DOF_1.txt', trajTotal)
+%     csvwrite('data/jointPos_9DOF_1.txt',jointPosTotal)
+%     csvwrite('data/jointPath.txt', jointPath);
 
     m = m+1;
 end

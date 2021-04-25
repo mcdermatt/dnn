@@ -20,6 +20,9 @@ Fitts' law -> emperical law about how long it takes to move your hand between tw
 
 		2x distance at 0.5 accuracy can be done in equal time
 
+Augmenting by rotating abou the y axis makes it too easy for the system to memorize certain trajectories-
+	validation loss will drop super fast while training and then the system will fail when introduced to entirely new data
+
 ---------------Simulation------------------------
 
 Get world frame angles of endpoint!!!
@@ -87,7 +90,6 @@ Convert ellipse data from matalb to tensorflow
 
 label data
 
-
 ---------------Network Design--------------------
 
 Fix exploding gradients
@@ -112,7 +114,7 @@ Loss function
 
 Tensorboard
 
-Loss function - try linear loss!!!
+Try dropout 
 
 ---------------Hyperparameter Optimization-------
 

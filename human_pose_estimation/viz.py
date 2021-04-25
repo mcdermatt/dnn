@@ -132,7 +132,6 @@ class viz:
 		x = 0
 		y = 0
 		z = 0
-		bodyRot = 85 #TODO update this value in actual trajecory when augmenting data
 		j0 = -self.truePath[self.i,0] #self.i / 10
 		j1 = -self.truePath[self.i,1] #self.i / 10
 		j2 =  self.truePath[self.i,2] #self.i / 10
@@ -143,7 +142,7 @@ class viz:
 		j6 = -self.truePath[self.i,6] #self.i #elbow
 		j7 = -self.truePath[self.i,7] #self.i / 5 #wrist twist
 		j8 = 45 + self.truePath[self.i,8] #30 + self.i / 2 #wrist in (shooting a basketball) - add 30 to start out straight
-
+		bodyRot = self.truePath[self.i,9]
 
 		#draw actual human position
 		px, py, pz = self.human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = True)
@@ -436,11 +435,12 @@ class viz:
 
 if __name__ == "__main__":
 
-	filename1 = "simulation/data/jointPath.txt" 	#ground truth movement traj
+	filename1 = "simulation/data/at.npy" 	#ground truth movement traj
 	filename2 = "simulation/data/traj_9DOF_1.txt"	#
 
 	#this is the actual configuration of the human that we are trying to figure out
-	actual_joint_trajectory = mat2npJoints(filename1)
+	# actual_joint_trajectory = mat2npJoints(filename1) #was this
+	actual_joint_trajectory = np.load(filename1)
 
 	#this is the trajectory of the ball that we are using to make our estimate 
 	endpoint_trajectory = mat2npEndpoint(filename2)[0]
