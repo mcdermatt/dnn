@@ -12,15 +12,10 @@
 %   Models trained in adaptive solver don't seem to work with input from
 %   linear solver (which makes sense)
 
-%TODO -> decide if I should lock wrist or not 
-%           would start each trajectory at set angle and not move
-%               randomize stiffness
-%     -> make sure joint output is total angle NOT RELATIVE TO START
-%     -> Fix bug with wrist position not updating with fast restart active
 
 beep off
-numTraj = 5;
-trajPerChunk = 5;
+numTraj = 1;
+trajPerChunk = 1;
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
 jointPosTotal = zeros(numTraj,9);
@@ -29,9 +24,6 @@ jointPosTotal = zeros(numTraj,9);
 
 tic
 count = 0;
-
-% parpool(3)
-% parfor m = 1:(floor(numTraj/trajPerChunk)) %parallel for loop
 
 m = 1;
 while m <= (floor(numTraj/trajPerChunk))
@@ -92,16 +84,15 @@ while m <= (floor(numTraj/trajPerChunk))
             fy = [0 mult*randn()];
             fz = [0 mult*randn()];
             model = 'human9DOF.slx';
-%             simOut = sim(model);
+            simOut = sim(model);
             
             %using parallel simulation & simulation manager
-            load_system(model);
-            numSims = 4;
-            in(1:numSims) = Simulink.SimulationInput(model);
-            for i = 1:numSims;
-                in(i) = setBlockParameter(in(i), [model '/
-            
-            simOut = parsim(in);
+%             load_system(model);
+%             numSims = 4;
+%             in(1:numSims) = Simulink.SimulationInput(model);
+%             for i = 1:numSims;
+%                 in(i) = setBlockParameter(in(i), [model '/
+%             simOut = parsim(in);
     
             startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
 
