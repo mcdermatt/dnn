@@ -43,8 +43,9 @@ class viz:
 			config = pyglet.gl.Config(sample_buffers=1, samples=9) #samples = number of points used for AA
 			self.window = pyglet.window.Window(width=1280, height=720, config = config)
 
-		self.keys = key.KeyStateHandler()
-		self.window.push_handlers(self.keys)
+		# self.keys = key.KeyStateHandler()
+		# self.window.push_handlers(self.keys)
+		self.window.push_handlers(self.on_key_press)
 		self.window.push_handlers(self.on_mouse_drag)
 
 		self.legs = Wavefront('simulation/assets/hipsAndLegs.obj')
@@ -65,7 +66,7 @@ class viz:
 		self.rx.scale = 0.005
 		self.rx.x = -10
 		self.rx.y = 12
-		grid = pyglet.image.load('simulation/assets/grid.png')
+		grid = pyglet.image.load('simulation/assets/blueGrid.jfif')
 		self.grid = pyglet.sprite.Sprite(img = grid)
 		self.grid.scale = 0.25
 
@@ -85,6 +86,9 @@ class viz:
 
 		self.spf = 1/60 #seconds per frame
 
+		self.show_actual = False
+		self.show_estimate = False
+
 	def on_resize(self,width, height):
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
@@ -96,9 +100,9 @@ class viz:
 	def on_draw(self):
 		self.window.clear()
 		#set background color
-		glClearColor(0.1,0.1,0.1,0.5) #night mode
+		# glClearColor(0.1,0.1,0.1,0.5) #night mode
 		# glClearColor(1.,1.,1.,0.5) #white
-		# glClearColor(0.69,1,0.69,0.5) #green
+		glClearColor(0.69,0.69,1,0.5) #blue
 
 		glViewport(0,0,1280,720)
 		glLoadIdentity()
@@ -115,10 +119,10 @@ class viz:
 
 		#draw ground plane
 		glRotatef(90,1,0,0)
-		glTranslatef(-100,-100,40)
+		glTranslatef(-200,-200,40)
 		self.grid.draw()
 		glRotatef(90,-1,0,0)
-		glTranslatef(100,100,-40)
+		glTranslatef(200,200,-40)
 
 		lightfv = ctypes.c_float * 4
 
@@ -145,7 +149,7 @@ class viz:
 		bodyRot = self.truePath[self.i,9]
 
 		#draw actual human position
-		px, py, pz = self.human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = True)
+		px, py, pz = self.human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = self.show_actual)
 		#draw ball in hand of human
 		self.draw_endpoint(px,py,pz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False)
 
@@ -160,7 +164,7 @@ class viz:
 
 		#run a second time, translating so the hand of the human is located at the end of the ball trajectory
 		self.human(pxFinal-pxEst, pyFinal-pyEst, pzFinal-pzEst, -self.est[0], -self.est[1], 
-			self.est[2], self.est[3], -self.est[4], -self.est[5], -self.est[6], -self.est[7], 45 + self.est[8], self.est[9], transparent=True, draw = True)
+			self.est[2], self.est[3], -self.est[4], -self.est[5], -self.est[6], -self.est[7], 45 + self.est[8], self.est[9], transparent=True, draw = self.show_estimate)
 
 		#draw ball from file
 		# self.draw_endpoint(self.pathBall[self.i%9,0],self.pathBall[self.i%9,1],self.pathBall[self.i%9,2]) #debug
@@ -418,6 +422,13 @@ class viz:
 			self.theta += dx
 			self.dCam += dy
 
+
+	def on_key_press(self,button,modifiers):
+		if button == key.Q:
+			self.show_actual = not self.show_actual
+
+		if button == key.W:
+			self.show_estimate = not self.show_estimate
 
 	def update(self, dt):
 		self.on_draw()

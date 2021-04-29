@@ -401,15 +401,15 @@ def Net4(**kwargs):
 
     #---
 
-    X = tf.keras.layers.Conv1D(filters = 512, kernel_size = 3, activation='relu', padding = 'same')(X)
-    X = keras.layers.BatchNormalization()(X)
-    skip = tf.identity(X)
+    # X = tf.keras.layers.Conv1D(filters = 512, kernel_size = 3, activation='relu', padding = 'same')(X)
+    # X = keras.layers.BatchNormalization()(X)
+    # skip = tf.identity(X)
 
-    X = tf.keras.layers.Conv1D(filters = 512, kernel_size = 3, activation='relu', padding = 'same')(X)
-    X = keras.layers.BatchNormalization()(X)
+    # X = tf.keras.layers.Conv1D(filters = 512, kernel_size = 3, activation='relu', padding = 'same')(X)
+    # X = keras.layers.BatchNormalization()(X)
 
-    X = keras.layers.add([X,skip])
-    X = keras.layers.ReLU()(X)
+    # X = keras.layers.add([X,skip])
+    # X = keras.layers.ReLU()(X)
 
     # #---
 

@@ -12,14 +12,14 @@
 beep off
 tic
 
-numTraj = 1000;
+numTraj = 250000;
 % trajPerChunk = 1; depricated, now numsims
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
 % trajTotal = [];
 jointPosTotal = zeros(numTraj,9);
 % jointPosTotal = [];
-numSims = 1000;% Max number of simulations to be stored in ram at a time
+numSims = 1000;% Max number of simulations to be stored in RAM at a time
 % can run 1000 sims in 146s (with 12 workers)
 
 m = 1;
@@ -108,21 +108,21 @@ while m <= (floor(numTraj/numSims))
         in(idx) = in(idx).setVariable('j8vi', j8vi);
 
         % case of random time varying forces
-    %     A = 3*randn(3,1); %amplitude
-    %     B = 10*randn(3,1); %frequency
-    %     C = randn(3,1); %phase
-    %     timevec = ((0:1000)/500)';
-    %     fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
-    %     fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
-    %     fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
+        A = 3*randn(3,1); %amplitude
+        B = 10*randn(3,1); %frequency
+        C = randn(3,1); %phase
+        timevec = ((0:1000)/500)';
+        fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
+        fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
+        fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
 
         %case of constant cartesian external forces (no gravity)
-        mult = 1;
-        fx = [0 mult*randn()];
+%         mult = 1;
+%         fx = [0 mult*randn()];
         in(idx) = in(idx).setVariable('fx', fx);
-        fy = [0 mult*randn()];
+%         fy = [0 mult*randn()];
         in(idx) = in(idx).setVariable('fy', fy);
-        fz = [0 mult*randn()];
+%         fz = [0 mult*randn()];
         in(idx) = in(idx).setVariable('fz', fz);   
     end
 
@@ -162,10 +162,13 @@ while m <= (floor(numTraj/numSims))
 
     m = m+1;
     clearvars simOutPar
+
+    csvwrite('data/traj_9DOF_250k_sin.txt', trajTotal)
+    csvwrite('data/jointPos_9DOF_250k_sin.txt',jointPosTotal)
+    
 end
 
-    csvwrite('data/traj_9DOF_test.txt', trajTotal)
-    csvwrite('data/jointPos_9DOF_test.txt',jointPosTotal)
+    
 
 
 toc

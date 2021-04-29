@@ -12,3 +12,21 @@
 rotation matrix lookup 
 
 	https://open.gl/transformations
+
+
+Fitz Law
+	Time to goal position is inversely proportional to size of bounded goal region
+		(this is why buttons on websites are big)
+
+Donder's Law
+	Donders’s law assumes that the central nervous system uses a unique upper  arm orientation
+	for each hand position in pointing tasks.
+
+	Also states that the upper arm will return to this same position regardless of the direction in which it 
+	traveled to reach such a position.
+		http://www.mbfys.ru.nl/~stan/gielen-MotorControl-2004.pdf
+
+Minimum Work Model
+	
+	Does dragging around a ragdoll human arm violate the minimum-work model?
+		Theoretically, dragging around an arm would by definition result in movement of the least work??

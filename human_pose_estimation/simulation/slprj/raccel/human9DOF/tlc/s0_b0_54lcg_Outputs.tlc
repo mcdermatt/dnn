@@ -1,0 +1,150 @@
+%implements s0_b0_54lcg_Outputs "C"
+
+%function OutputsForTID(block, system, tid) Output
+%if tid == 0
+%assign ::GlobalCurrentTID = 0
+%assign cfgTxt = ""
+%openfile cfgTxt
+%assign localVarDecl = ""
+%<SLibGetRootInportsFromFile(system, TLC_FALSE)>
+%<SLibGenerateExtModeOutput(system)>
+%<SLibInsertSolverResetCode()>\
+%closefile cfgTxt
+%<cfgTxt>
+%<LibSetSystemField(system, "CachedOutputLocalVars", localVarDecl)>
+%assign ::GlobalCurrentTID = []
+%endif
+%if tid == 2
+%assign ::GlobalCurrentTID = 2
+%assign cfgTxt = ""
+%openfile cfgTxt
+%assign localVarDecl = ""
+%openfile localVarDecl
+
+real_T *parameterBundle_mRealParameters_mX;
+real_T tmp[19];
+NeuDiagnosticManager *diag;
+NeuDiagnosticTree *diagTree;
+boolean_T ok;
+char *msg;
+NeParameterBundle expl_temp;
+%closefile localVarDecl
+%assign tlcOutputsFcnOfS0B29 = OpaqueTLCBlockFcn("Outputs", 0, 29, 0, 3, 0)
+%assign tlcOutputsFcnOfS0B30 = OpaqueTLCBlockFcn("Outputs", 0, 30, 0, 3, 1)
+%assign tlcOutputsFcnOfS0B31 = OpaqueTLCBlockFcn("Outputs", 0, 31, 0, 3, 2)
+%assign tlcOutputsFcnOfS0B32 = OpaqueTLCBlockFcn("Outputs", 0, 32, 0, 3, 3)
+%assign tlcOutputsFcnOfS0B33 = OpaqueTLCBlockFcn("Outputs", 0, 33, 0, 3, 4)
+%assign tlcOutputsFcnOfS0B34 = OpaqueTLCBlockFcn("Outputs", 0, 34, 0, 3, 5)
+%assign tlcOutputsFcnOfS0B35 = OpaqueTLCBlockFcn("Outputs", 0, 35, 0, 3, 6)
+%assign tlcOutputsFcnOfS0B36 = OpaqueTLCBlockFcn("Outputs", 0, 36, 0, 3, 7)
+%assign tlcOutputsFcnOfS0B37 = OpaqueTLCBlockFcn("Outputs", 0, 37, 0, 3, 8)
+%assign tlcOutputsFcnOfS0B38 = OpaqueTLCBlockFcn("Outputs", 0, 38, 0, 3, 9)
+%assign tlcOutputsFcnOfS0B39 = OpaqueTLCBlockFcn("Outputs", 0, 39, 0, 3, 10)
+%assign tlcOutputsFcnOfS0B40 = OpaqueTLCBlockFcn("Outputs", 0, 40, 0, 3, 11)
+%assign tlcOutputsFcnOfS0B41 = OpaqueTLCBlockFcn("Outputs", 0, 41, 0, 3, 12)
+%assign tlcOutputsFcnOfS0B42 = OpaqueTLCBlockFcn("Outputs", 0, 42, 0, 3, 13)
+%assign tlcOutputsFcnOfS0B43 = OpaqueTLCBlockFcn("Outputs", 0, 43, 0, 3, 14)
+%assign tlcOutputsFcnOfS0B44 = OpaqueTLCBlockFcn("Outputs", 0, 44, 0, 3, 15)
+%assign tlcOutputsFcnOfS0B45 = OpaqueTLCBlockFcn("Outputs", 0, 45, 0, 3, 16)
+%assign tlcOutputsFcnOfS0B46 = OpaqueTLCBlockFcn("Outputs", 0, 46, 0, 3, 17)
+%assign tlcOutputsFcnOfS0B47 = OpaqueTLCBlockFcn("Outputs", 0, 47, 0, 3, 18)
+%assign tlcOutputsFcnOfS0B48 = OpaqueTLCBlockFcn("Outputs", 0, 48, 0, 3, 19)
+%assign tlcOutputsFcnOfS0B49 = OpaqueTLCBlockFcn("Outputs", 0, 49, 0, 3, 20)
+%assign tlcOutputsFcnOfS0B50 = OpaqueTLCBlockFcn("Outputs", 0, 50, 0, 3, 21)
+%assign tlcOutputsFcnOfS0B51 = OpaqueTLCBlockFcn("Outputs", 0, 51, 0, 3, 22)
+%assign tlcOutputsFcnOfS0B52 = OpaqueTLCBlockFcn("Outputs", 0, 52, 0, 3, 23)
+%assign tlcOutputsFcnOfS0B53 = OpaqueTLCBlockFcn("Outputs", 0, 53, 0, 3, 24)
+%<tlcOutputsFcnOfS0B29>\
+%<tlcOutputsFcnOfS0B30>\
+%<tlcOutputsFcnOfS0B31>\
+%<tlcOutputsFcnOfS0B32>\
+%<tlcOutputsFcnOfS0B33>\
+%<tlcOutputsFcnOfS0B34>\
+%<tlcOutputsFcnOfS0B35>\
+%<tlcOutputsFcnOfS0B36>\
+%<tlcOutputsFcnOfS0B37>\
+%<tlcOutputsFcnOfS0B38>\
+%<tlcOutputsFcnOfS0B39>\
+%<tlcOutputsFcnOfS0B40>\
+%<tlcOutputsFcnOfS0B41>\
+%<tlcOutputsFcnOfS0B42>\
+%<tlcOutputsFcnOfS0B43>\
+%<tlcOutputsFcnOfS0B44>\
+%<tlcOutputsFcnOfS0B45>\
+%<tlcOutputsFcnOfS0B46>\
+%<tlcOutputsFcnOfS0B47>\
+%<tlcOutputsFcnOfS0B48>\
+%<tlcOutputsFcnOfS0B49>\
+%<tlcOutputsFcnOfS0B50>\
+%<tlcOutputsFcnOfS0B51>\
+%<tlcOutputsFcnOfS0B52>\
+%<tlcOutputsFcnOfS0B53>\
+if (rtDW.eubaypvugh) {
+    tmp[0] = rtP.j5ll;
+    tmp[1] = rtP.j5ul;
+    tmp[2] = rtP.j5vi;
+    tmp[3] = rtP.j7pi;
+    tmp[4] = rtP.j3pi;
+    tmp[5] = rtP.j3ll;
+    tmp[6] = rtP.j2pi;
+    tmp[7] = rtP.j6pi;
+    tmp[8] = rtP.j4pi;
+    tmp[9] = rtP.j6ll;
+    tmp[10] = rtP.j6ul;
+    tmp[11] = rtP.j6vi;
+    tmp[12] = rtP.j1pi;
+    tmp[13] = rtP.j0pi;
+    tmp[14] = rtP.j5pi;
+    tmp[15] = rtP.j7ll;
+    tmp[16] = rtP.j7ul;
+    tmp[17] = rtP.j6vi;
+    tmp[18] = rtP.j1vi;
+    parameterBundle_mRealParameters_mX = &tmp[0];
+    diag = rtw_create_diagnostics();
+    diagTree = neu_diagnostic_manager_get_initial_tree(diag);
+    expl_temp.mRealParameters.mN = 19;
+    expl_temp.mRealParameters.mX = parameterBundle_mRealParameters_mX;
+    expl_temp.mLogicalParameters.mN = 0;
+    expl_temp.mLogicalParameters.mX = NULL;
+    expl_temp.mIntegerParameters.mN = 0;
+    expl_temp.mIntegerParameters.mX = NULL;
+    expl_temp.mIndexParameters.mN = 0;
+    expl_temp.mIndexParameters.mX = NULL;
+    ok = nesl_rtp_manager_set_rtps((NeslRtpManager *)rtDW.fgujja1dx0, %<(LibGetT())>, expl_temp, diag);
+    if (!ok) {
+        ok = error_buffer_is_empty(%<(LibGetRTModelErrorStatus())>);
+        if (ok) {
+            msg = rtw_diagnostics_msg(diagTree);
+            %<(LibSetRTModelErrorStatus("msg"))>;
+        }
+    }
+}
+rtDW.eubaypvugh = false;
+%closefile cfgTxt
+%<cfgTxt>
+%<LibSetSystemField(system, "CachedOutput2LocalVars", localVarDecl)>
+%assign ::GlobalCurrentTID = []
+%endif
+%endfunction
+%function OutputsFcnProtoTypeForTID(block, system, tid) Output
+%if tid == 0
+%assign ::GlobalCurrentTID = 0
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Outputs0(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 2, fcnProtoType)>
+%assign ::GlobalCurrentTID = []
+%endif
+%if tid == 2
+%assign ::GlobalCurrentTID = 2
+%assign fcnProtoType = ""
+%openfile fcnProtoType
+static void Outputs1(\
+%assign comma = ""
+%closefile fcnProtoType
+%<SLibCG_SetFcnProtoType(0, 3, fcnProtoType)>
+%assign ::GlobalCurrentTID = []
+%endif
+%endfunction

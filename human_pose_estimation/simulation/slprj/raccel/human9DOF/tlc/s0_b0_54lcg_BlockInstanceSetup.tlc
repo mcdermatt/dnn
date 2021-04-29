@@ -1,0 +1,16 @@
+%implements s0_b0_54lcg_BlockInstanceSetup "C"
+
+%function BlockInstanceSetup(block, system) Output
+%% Subsystems with iterators in IR:
+%% TLC Block Registration buffer:
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%<LibAddToCommonIncludes("human9DOF_836bb176_1_gateway.h")>
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%<LibAddToCommonIncludes("nesl_rtw_rtp.h")>
+%% END  Block Registration buffer
+%endfunction

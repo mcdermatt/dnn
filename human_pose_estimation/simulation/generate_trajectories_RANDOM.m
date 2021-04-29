@@ -77,7 +77,8 @@ while m <= (floor(numTraj/trajPerChunk))
             B = 10*randn(3,1); %frequency
             C = randn(3,1); %phase
 
-            timevec = ((0:1000)/500)';
+            timeLen = 5; %sec
+            timevec = ((0:1000)/timeLen*1000)';
             fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
             fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
             fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
@@ -113,8 +114,8 @@ while m <= (floor(numTraj/trajPerChunk))
     %jointPosTotal = [jointPosTotal; jointPos];
     jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
 
-    csvwrite('traj_random.txt', trajTotal)
-    csvwrite('jointPos_random.txt',jointPosTotal)
+    csvwrite('traj_long1.txt', trajTotal)
+    csvwrite('jointPos_long1.txt',jointPosTotal)
     
     m = m+1;
 end
