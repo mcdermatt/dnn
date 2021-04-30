@@ -55,7 +55,8 @@ class viz:
 		self.lowerArm = Wavefront('simulation/assets/lowerArm.obj')
 		self.hand = Wavefront('simulation/assets/hand.obj')
 		self.head = Wavefront('simulation/assets/head.obj')
-		self.ball = Wavefront('simulation/assets/ball.obj')
+		self.ball = Wavefront('simulation/assets/iPhone6s.obj')
+		# self.ball = Wavefront('simulation/assets/ball.obj')
 		greenCheck = pyglet.image.load('simulation/assets/greenCheck.png')
 		self.gc = pyglet.sprite.Sprite(img=greenCheck)
 		self.gc.scale = 0.01
@@ -378,7 +379,8 @@ class viz:
 		r8 = R.from_euler('z', j8, degrees = True)
 
 		wrist2palm = rbody*r0*r1*r2*r3*r4*r5*r6*r7*r8
-		dx, dy, dz = wrist2palm.apply([-1.5, -4, 0])
+		# dx, dy, dz = wrist2palm.apply([-1.5, -4, 0]) #for ball
+		dx, dy, dz = wrist2palm.apply([-2.5, -3.25, 1.250]) #for phone
 
 		palmx = wristx + dx
 		palmy = wristy + dy
@@ -386,7 +388,7 @@ class viz:
 
 		return palmx, palmy, palmz
 
-	def draw_endpoint(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False, draw = True):
+	def draw_endpoint(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False, draw = True, scale = 1.0):
 		glLoadIdentity()
 		glMatrixMode(GL_MODELVIEW)
 		glTranslatef(x, y, z)
@@ -398,13 +400,13 @@ class viz:
 		glRotatef(j4, 0, 1, 0)
 		glRotatef(j5, 1, 0, 0)
 
-		glRotatef(j6, -1, 0, 0) #idk here
-		glRotatef(j7, 0, 1, 0) #idk here
-		glRotatef(j8, 0, 0, 1) #idk here
+		glRotatef(j6, -1, 0, 0)
+		glRotatef(170+j7, 0, 1, 0)
+		glRotatef(110-j8, 0, 0, 1)
 		if wireframe:
 			glPolygonMode( GL_FRONT, GL_POINT)
 
-		glScalef(2.,2.,2.)
+		glScalef(scale,scale,scale)
 		if draw:
 			visualization.draw(self.ball)
 		glScalef(1.,1.,1.)

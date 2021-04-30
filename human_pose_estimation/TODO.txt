@@ -9,7 +9,7 @@ GOAL: Use data from inertia map of human hand moving through space to estimate h
 
 ----Next steps---------
 
-convert 
+estimating body rotation as -179 and 180 counts as 359 error even though only 1deg away!!!
 
 ---------------General Research------------------
 

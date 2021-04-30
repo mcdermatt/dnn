@@ -19,6 +19,8 @@ trajPerChunk = 1;
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
 jointPosTotal = zeros(numTraj,9);
+angsRelativeToStart = false; %false means that angles of ball relative to world frame
+                             %true means angles of ball are relative to starting position
 
 %NOTE: This works WAAAYY faster withtout visual simulation on 
 
@@ -98,12 +100,18 @@ while m <= (floor(numTraj/trajPerChunk))
             simOut = sim(model);
     
             startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
-
+            
+            if angsRelativeToStart == true
+                startAngs =[simOut.ang(1,1) simOut.ang(1,2) simOut.ang(1,3)];
+            else
+                startAngs =[0 0 0];
+            end
+            
             %get array of xyz points in trajectory
             for j = 1:trajPts
                 s = j*floor(length(simOut.x)/trajPts);
                 traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;
-                trajAngs(j,:,i) = [simOut.ang(s,1) simOut.ang(s,2) simOut.ang(s,3)];
+                trajAngs(j,:,i) = [simOut.ang(s,1) simOut.ang(s,2) simOut.ang(s,3)] - startAngs;
             end
 
             %get joint angles at final point
