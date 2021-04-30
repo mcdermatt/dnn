@@ -7,6 +7,9 @@ GOAL: Use data from inertia map of human hand moving through space to estimate h
 		
 	(human is standing in one place to start)
 
+----Next steps---------
+
+convert 
 
 ---------------General Research------------------
 

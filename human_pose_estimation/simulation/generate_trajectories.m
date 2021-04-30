@@ -78,21 +78,21 @@ while m <= (floor(numTraj/trajPerChunk))
             j7vi = 0;
             j8vi = 0;
 
-%             % case of random time varying forces
-%             A = 3*randn(3,1); %amplitude
-%             B = 50*randn(3,1); %frequency
-%             C = randn(3,1); %phase
-%             timeLen = 5;
-%             timevec = ((0:1000)/timeLen * 1000)';
-%             fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
-%             fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
-%             fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
+            % case of random time varying forces
+            A = 3*randn(3,1); %amplitude
+            B = 50*randn(3,1); %frequency
+            C = randn(3,1); %phase
+            timeLen = 5;
+            timevec = ((0:1000)/timeLen * 1000)';
+            fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
+            fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
+            fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
 %             
-            %case of constant cartesian external forces (no gravity)
-            mult = 1;
-            fx = [0 mult*randn()];
-            fy = [0 mult*randn()];
-            fz = [0 mult*randn()];
+%             %case of constant cartesian external forces (no gravity)
+%             mult = 1;
+%             fx = [0 mult*randn()];
+%             fy = [0 mult*randn()];
+%             fz = [0 mult*randn()];
                       
             model = 'human9DOF';
             simOut = sim(model);

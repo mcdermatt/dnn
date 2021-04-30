@@ -45,8 +45,8 @@ class viz:
 
 		# self.keys = key.KeyStateHandler()
 		# self.window.push_handlers(self.keys)
-		self.window.push_handlers(self.on_key_press)
-		self.window.push_handlers(self.on_mouse_drag)
+		self.kph = self.window.push_handlers(self.on_key_press)
+		self.mph = self.window.push_handlers(self.on_mouse_drag)
 
 		self.legs = Wavefront('simulation/assets/hipsAndLegs.obj')
 		self.torso = Wavefront('simulation/assets/torso.obj')
@@ -430,6 +430,9 @@ class viz:
 		if button == key.W:
 			self.show_estimate = not self.show_estimate
 
+		if button == key.F:
+			pyglet.app.exit()
+
 	def update(self, dt):
 		self.on_draw()
 		self.on_resize(1280,720)
@@ -439,7 +442,6 @@ class viz:
 			self.i = 0 #loop
 
 	def start(self):
-		# pyglet.clock.schedule(self.update)
 		pyglet.clock.schedule_interval(self.update, self.spf)
 		pyglet.app.run()
 
