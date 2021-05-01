@@ -19,8 +19,8 @@ trajPerChunk = 1;
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
 jointPosTotal = zeros(numTraj,9);
-angsRelativeToStart = false; %false means that angles of ball relative to world frame are known
-                             
+angsRelativeToStart = true; %false means that angles of ball relative to world frame
+                             %true means angles of ball are relative to starting position
 
 %NOTE: This works WAAAYY faster withtout visual simulation on 
 
@@ -99,20 +99,22 @@ while m <= (floor(numTraj/trajPerChunk))
             model = 'human9DOF';
             simOut = sim(model);
     
-            startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
+            %get array of xyz points in trajectory
+            for j = 1:trajPts
+                s = j*floor(length(simOut.x)/trajPts);
+                traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)];
+                trajAngs(j,:,i) = [simOut.ang(s,1) simOut.ang(s,2) simOut.ang(s,3)];
+            end
+            
+            startPos 
             
             if angsRelativeToStart == true
-                startAngs =[simOut.ang(1,1) simOut.ang(1,2) simOut.ang(1,3)];
+                startAngs =trajAngs(1,:,i);
             else
                 startAngs =[0 0 0];
             end
             
-            %get array of xyz points in trajectory
-            for j = 1:trajPts
-                s = j*floor(length(simOut.x)/trajPts);
-                traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;
-                trajAngs(j,:,i) = [simOut.ang(s,1) simOut.ang(s,2) simOut.ang(s,3)] - startAngs;
-            end
+            trajAngs = trajAngs - startAngs;
 
             %get joint angles at final point
             jointPos(i,:) = [simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
@@ -141,10 +143,9 @@ while m <= (floor(numTraj/trajPerChunk))
     csvwrite('data/traj_9DOF_1.txt', trajTotal)
     csvwrite('data/jointPos_9DOF_1.txt',jointPosTotal)
     csvwrite('data/jointPath.txt', jointPath);
-
-%     csvwrite('data/traj_9DOF_long.txt', trajTotal)
-%     csvwrite('data/jointPos_9DOF_long.txt',jointPosTotal)
-%     csvwrite('data/jointPath_long.txt', jointPath);
+% 
+%     csvwrite('data/traj_9DOF_rel2start100k.txt', trajTotal)
+%     csvwrite('data/jointPos_9DOF_rel2start100k.txt',jointPosTotal)
 
 
     m = m+1;

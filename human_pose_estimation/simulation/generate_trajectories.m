@@ -16,10 +16,12 @@
 beep off
 numTraj = 1;
 trajPerChunk = 1;
-trajPts = 10; %number of points in each trajectory
+ptsPerSec = 10; %polling of end effector state this many times per sec
+trajLength = 5; %number of secs to run traj (should match value in simulink)
+trajPts = trajLength*ptsPerSec; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
 jointPosTotal = zeros(numTraj,9);
-angsRelativeToStart = false; %false means that angles of ball relative to world frame
+angsRelativeToStart = true; %false means that angles of ball relative to world frame
                              %true means angles of ball are relative to starting position
 
 %NOTE: This works WAAAYY faster withtout visual simulation on 
@@ -81,11 +83,11 @@ while m <= (floor(numTraj/trajPerChunk))
             j8vi = 0;
 
             % case of random time varying forces
-            A = 3*randn(3,1); %amplitude
-            B = 50*randn(3,1); %frequency
+            A = 6*randn(3,1); %amplitude
+            B = 10*randn(3,1); %frequency
             C = randn(3,1); %phase
             timeLen = 5;
-            timevec = ((0:1000)/timeLen * 1000)';
+            timevec = ((0:1000)/timeLen)';
             fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
             fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
             fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
@@ -99,20 +101,23 @@ while m <= (floor(numTraj/trajPerChunk))
             model = 'human9DOF';
             simOut = sim(model);
     
-            startPos = [simOut.x(1) simOut.y(1) simOut.z(1)];
+            %get array of xyz points in trajectory
+            for j = 1:trajPts
+                s = j*floor(length(simOut.x)/trajPts);
+                traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)];
+                trajAngs(j,:,i) = [simOut.ang(s,1) simOut.ang(s,2) simOut.ang(s,3)];
+            end
+            
+            startPos = traj(1,:,i);
             
             if angsRelativeToStart == true
-                startAngs =[simOut.ang(1,1) simOut.ang(1,2) simOut.ang(1,3)];
+                startAngs =trajAngs(1,:,i);
             else
                 startAngs =[0 0 0];
             end
             
-            %get array of xyz points in trajectory
-            for j = 1:trajPts
-                s = j*floor(length(simOut.x)/trajPts);
-                traj(j,:,i) = [simOut.x(s) simOut.y(s) simOut.z(s)] - startPos;
-                trajAngs(j,:,i) = [simOut.ang(s,1) simOut.ang(s,2) simOut.ang(s,3)] - startAngs;
-            end
+            traj = traj - startPos;
+            trajAngs = trajAngs - startAngs;
 
             %get joint angles at final point
             jointPos(i,:) = [simOut.j0pf(s) simOut.j1pf(s) simOut.j2pf(s) simOut.j3pf(s) ...
@@ -138,13 +143,14 @@ while m <= (floor(numTraj/trajPerChunk))
     %jointPosTotal = [jointPosTotal; jointPos];
     jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
 
-    csvwrite('data/traj_9DOF_1.txt', trajTotal)
-    csvwrite('data/jointPos_9DOF_1.txt',jointPosTotal)
-    csvwrite('data/jointPath.txt', jointPath);
-
-%     csvwrite('data/traj_9DOF_long.txt', trajTotal)
-%     csvwrite('data/jointPos_9DOF_long.txt',jointPosTotal)
-%     csvwrite('data/jointPath_long.txt', jointPath);
+    csvwrite('data/traj_9DOF_long.txt', trajTotal)
+    csvwrite('data/jointPos_9DOF_long.txt',jointPosTotal) %only useful
+%     for training the network, needed for utils rotation func (should fix
+%     later for efficiency)
+    csvwrite('data/jointPath_long.txt', jointPath);
+% 
+%     csvwrite('data/traj_9DOF_rel2start100k.txt', trajTotal)
+%     csvwrite('data/jointPos_9DOF_rel2start100k.txt',jointPosTotal)
 
 
     m = m+1;

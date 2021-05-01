@@ -28,10 +28,9 @@ class viz:
 	"""Human visualization class made using OpenGL
 	 .start() to run"""
 
-	def __init__(self, truePath, pathBall, estimate, use_GPU = False):
+	def __init__(self, truePath, estimate, use_GPU = False):
 
 		self.truePath = truePath
-		self.pathBall = pathBall
 		self.est = estimate
 		print(self.est)
 		self.lenPath = len(truePath)
@@ -119,11 +118,12 @@ class viz:
 		glMatrixMode(GL_MODELVIEW)
 
 		#draw ground plane
-		glRotatef(90,1,0,0)
-		glTranslatef(-200,-200,40)
-		self.grid.draw()
-		glRotatef(90,-1,0,0)
-		glTranslatef(200,200,-40)
+		if self.show_actual:
+			glRotatef(90,1,0,0)
+			glTranslatef(-200,-200,40)
+			self.grid.draw()
+			glRotatef(90,-1,0,0)
+			glTranslatef(200,200,-40)
 
 		lightfv = ctypes.c_float * 4
 
@@ -166,10 +166,6 @@ class viz:
 		#run a second time, translating so the hand of the human is located at the end of the ball trajectory
 		self.human(pxFinal-pxEst, pyFinal-pyEst, pzFinal-pzEst, -self.est[0], -self.est[1], 
 			self.est[2], self.est[3], -self.est[4], -self.est[5], -self.est[6], -self.est[7], 45 + self.est[8], self.est[9], transparent=True, draw = self.show_estimate)
-
-		#draw ball from file
-		# self.draw_endpoint(self.pathBall[self.i%9,0],self.pathBall[self.i%9,1],self.pathBall[self.i%9,2]) #debug
-
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 		
@@ -451,19 +447,12 @@ class viz:
 if __name__ == "__main__":
 
 	filename1 = "simulation/data/at.npy" 	#ground truth movement traj
-	filename2 = "simulation/data/traj_9DOF_1.txt"	#
 
 	#this is the actual configuration of the human that we are trying to figure out
-	# actual_joint_trajectory = mat2npJoints(filename1) #was this
 	actual_joint_trajectory = np.load(filename1)
-
-	#this is the trajectory of the ball that we are using to make our estimate 
-	endpoint_trajectory = mat2npEndpoint(filename2)[0]
 
 	#how the DNN thinks the human is configured
 	estimate = np.load("simulation/data/prediction.npy")[0]
 
-	#TODO - need to rotate body of ground truth human
-	viz = viz(actual_joint_trajectory, endpoint_trajectory *10, estimate, use_GPU=True)
-
+	viz = viz(actual_joint_trajectory, estimate, use_GPU=True)
 	viz.start()

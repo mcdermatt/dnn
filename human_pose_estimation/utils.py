@@ -31,13 +31,11 @@ def mat2npJoints(trajPath):
 	return arr
 
 
-def mat2npEndpoint(file, numTraj = 2):
+def mat2npEndpoint(file, numTraj = 2, trajPts = 10):
 
 	'''converts text file output from matlab matrix to np array'''
 
 	traj = np.loadtxt(open(file, "rb"), delimiter=",")
-
-	trajPts = 10
 			
 	t = np.zeros([trajPts,6,numTraj]) #net 3
 	for j in range(np.shape(traj)[0]):
@@ -52,7 +50,7 @@ def mat2npEndpoint(file, numTraj = 2):
 
 	return t
 
-def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, actual_traj = None):
+def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, actual_traj = None, numPts=10):
 
 	''' Endpoint trajectory data from SimScape Multibody simulation assumes 
 		coordinate frame is relative to the hips of the human. This means that all
@@ -71,9 +69,9 @@ def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, ac
 	#TODO - use this as a cheat to get more data
 
 	'''
-	numPts = 10 #number of individual points in each endpoint trajectory
+	# numPts = number of individual points in each endpoint trajectory
 
-	traj = mat2npEndpoint(endpoint_trajectory, numTraj)
+	traj = mat2npEndpoint(endpoint_trajectory, numTraj, trajPts = numPts)
 	# print(np.shape(traj))
 	joints = np.loadtxt(open(joint_pos_file, "rb"), delimiter=",", ndmin = 2) #ndmin avoids weird case with only one traj
 	# print("shape of joints: ", np.shape(joints))

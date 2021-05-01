@@ -12,7 +12,7 @@
 beep off
 tic
 
-numTraj = 500000;
+numTraj = 100000;
 % trajPerChunk = 1; depricated, now numsims
 trajPts = 10; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
@@ -21,6 +21,9 @@ jointPosTotal = zeros(numTraj,9);
 % jointPosTotal = [];
 numSims = 2500;% Max number of simulations to be stored in RAM at a time
 % can run 1000 sims in 146s (with 12 workers)
+angsRelativeToStart = true; %false means that angles of ball relative to world frame
+                             %true means angles of ball are relative to starting position
+
 
 m = 1;
 
@@ -111,7 +114,7 @@ while m <= (floor(numTraj/numSims))
 %         A = 3*randn(3,1); %amplitude
 %         B = 10*randn(3,1); %frequency
 %         C = randn(3,1); %phase
-%         timevec = ((0:1000)/500)';
+%         timevec = ((0:1000)/5)';
 %         fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
 %         fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
 %         fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
@@ -139,12 +142,22 @@ while m <= (floor(numTraj/numSims))
 
       % update traj (shape of traj is [10, 6, #trajs]) --------------
       % get array of xyz pts in trajectory
-        startPos = [simOutPar(i).x(1) simOutPar(i).y(1) simOutPar(i).z(1)];
         for j = 1:trajPts
             s = j*floor(length(simOutPar(i).x)/trajPts);
-            traj(j,:,i) = [simOutPar(i).x(s) simOutPar(i).y(s) simOutPar(i).z(s)] - startPos;
+            traj(j,:,i) = [simOutPar(i).x(s) simOutPar(i).y(s) simOutPar(i).z(s)];
             trajAngs(j,:,i) = [simOutPar(i).ang(s,1) simOutPar(i).ang(s,2) simOutPar(i).ang(s,3)];
         end
+        
+        startPos = traj(1,:,i);
+            
+        if angsRelativeToStart == true
+            startAngs =trajAngs(1,:,i);
+        else
+            startAngs =[0 0 0];
+        end
+
+        traj(:,:,i) = traj(:,:,i) - startPos;
+        trajAngs(:,:,i) = trajAngs(:,:,i) - startAngs;
 
         %update jointPos --------------------------------------------
         jointPos(i,:) = [simOutPar(i).j0pf(s) simOutPar(i).j1pf(s) simOutPar(i).j2pf(s) simOutPar(i).j3pf(s) ...
@@ -155,16 +168,17 @@ while m <= (floor(numTraj/numSims))
             %+ [j0pi j1pi j2pi j3pi j4pi j5pi j6pi j7pi j8pi];
       end
     end
-    trajTotal(:,:,((m-1)*numSims+1):((m)*numSims)) = [traj trajAngs]; %needs debug
-%     trajTotal = cat(3, trajTotal, [traj trajAngs]);
-%     jointPosTotal = cat(1, jointPosTotal, jointPos);
+    trajTotal(:,:,((m-1)*numSims+1):((m)*numSims)) = [traj trajAngs];
     jointPosTotal(((m-1)*numSims+1):((m)*numSims),:) = jointPos;
 
     m = m+1;
     clearvars simOutPar
-% 
+
 %     csvwrite('data/traj_9DOF_500k.txt', trajTotal)
 %     csvwrite('data/jointPos_9DOF_500k.txt',jointPosTotal)
+
+    csvwrite('data/traj_9DOF_rel2start100k.txt', trajTotal)
+    csvwrite('data/jointPos_9DOF_rel2start100k.txt',jointPosTotal)
     
 end
 
