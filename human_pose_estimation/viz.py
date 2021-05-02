@@ -32,9 +32,9 @@ class viz:
 
 		self.truePath = truePath
 		self.est = estimate
-		print(self.est)
+		# print(self.est)
 		self.lenPath = len(truePath)
-		print("shape is" ,np.shape(self.truePath))
+		# print("shape is" ,np.shape(self.truePath))
 
 		if use_GPU is False:
 			self.window = pyglet.window.Window(width=1280,height=720)
@@ -85,9 +85,10 @@ class viz:
 		self.label = None
 
 		self.spf = 1/60 #seconds per frame
-
 		self.show_actual = False
 		self.show_estimate = False
+
+		self.estimate_hips = np.zeros([np.shape(self.est)[0],3])
 
 	def on_resize(self,width, height):
 		glMatrixMode(GL_PROJECTION)
@@ -155,21 +156,71 @@ class viz:
 		self.draw_endpoint(px,py,pz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False)
 
 		#get coords of final position of actual human
-		pxFinal, pyFinal, pzFinal = self.human(0,0,0, -self.truePath[-1,0], -self.truePath[-1,1], self.truePath[-1,2], self.truePath[-1,3],
-										-self.truePath[-1,4], -self.truePath[-1,5], -self.truePath[-1,6], -self.truePath[-1,7],
-										45 + self.truePath[-1,8],bodyRot, draw = False)
+		#at end of trajectory
+		# pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[-1,0], -self.truePath[-1,1], self.truePath[-1,2], self.truePath[-1,3],
+		# 								-self.truePath[-1,4], -self.truePath[-1,5], -self.truePath[-1,6], -self.truePath[-1,7],
+		# 								45 + self.truePath[-1,8],bodyRot, draw = False)
 
-		#get estimate of human configuration from network - run once without draw to get position of hand relative to base
-		pxEst, pyEst, pzEst = self.human(0,0,0, -self.est[0], -self.est[1], self.est[2], self.est[3], -self.est[4], -self.est[5],
-											-self.est[6], -self.est[7], 45 + self.est[8], self.est[9], transparent=False, draw = False)
+		#periodically throughout traj
+		# step = int(np.ceil(self.i/60)*60)
+		# if step >= np.shape(self.est)[0]:
+		# 	step -= 1
+		step = self.i
+		pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[step,0], -self.truePath[step,1], self.truePath[step,2], self.truePath[step,3],
+										-self.truePath[step,4], -self.truePath[step,5], -self.truePath[step,6], -self.truePath[step,7],
+										45 + self.truePath[step,8],bodyRot, draw = False)
 
-		#run a second time, translating so the hand of the human is located at the end of the ball trajectory
-		self.human(pxFinal-pxEst, pyFinal-pyEst, pzFinal-pzEst, -self.est[0], -self.est[1], 
-			self.est[2], self.est[3], -self.est[4], -self.est[5], -self.est[6], -self.est[7], 45 + self.est[8], self.est[9], transparent=True, draw = self.show_estimate)
-
+		self.draw_estimates(pxPalm, pyPalm, pzPalm)
+		
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 		
 		time.sleep(0.01)
+
+	def draw_estimates(self,pxPalm, pyPalm, pzPalm):
+
+		estPerSec = 1 # to account for offset since there are no estimates before t=1s
+		i = int(np.floor(self.i*np.shape(self.est)[0]/self.lenPath)) - estPerSec 
+
+		# if i>=0: #if the sim is more than 1s in (time needed to make estimate)
+		# get estimate of human configuration from network - run once without draw to get position of hand relative to base
+		pxEst, pyEst, pzEst = self.human(0,0,0, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
+					-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=False, draw = False)
+
+		x = 0#pxPalm-pxEst 
+		y = 0#pyPalm-pyEst 
+		z = 0#pzPalm-pzEst 
+
+		self.human(x,y,z, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
+					-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
+
+
+		#maybe run once in init, this does not scale for longer trajectories...
+		# for i in range(np.shape(self.est)[0]):
+		# 	#get estimate of human configuration from network - run once without draw to get position of hand relative to base
+		# 	pxEst, pyEst, pzEst = self.human(0,0,0, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
+		# 										-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=False, draw = False)
+
+		# 	self.estimate_hips[i,:] = [pxPalm - pxEst, pyPalm - pyEst, pzPalm - pzEst]
+
+		# 	#try: ignore this for now
+		# 	if (int(np.floor(self.i*np.shape(self.est)[0]/self.lenPath)) == i):
+		# 	# 	#run a second time, translating so the hand of the human is located at the end of the ball trajectory
+		# 	# 	self.human(pxPalm-pxEst, pyPalm-pyEst, pzPalm-pzEst, -self.est[i,0], -self.est[i,1], 
+		# 	# 		self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5], -self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
+
+		# 		#simple mean...
+		# 		# x = np.mean(self.estimate_hips, axis=0)[0]
+		# 		# y = np.mean(self.estimate_hips, axis=0)[1]
+		# 		# z = np.mean(self.estimate_hips, axis=0)[2]
+
+		# 		#actual vals needed to make estimated hand cross actual trajectory
+		# 		x = self.estimate_hips[i,0]
+		# 		y = self.estimate_hips[i,1]
+		# 		z = self.estimate_hips[i,2]
+
+		# 		self.human(x,y,z, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
+		# 											-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
+
 
 	def human(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = True):
 		
@@ -452,7 +503,7 @@ if __name__ == "__main__":
 	actual_joint_trajectory = np.load(filename1)
 
 	#how the DNN thinks the human is configured
-	estimate = np.load("simulation/data/prediction.npy")[0]
+	estimate = np.load("simulation/data/prediction.npy")
 
 	viz = viz(actual_joint_trajectory, estimate, use_GPU=True)
 	viz.start()

@@ -142,12 +142,16 @@ while m <= (floor(numTraj/trajPerChunk))
     trajTotal(:,:,((m-1)*trajPerChunk+1):((m)*trajPerChunk)) = [traj trajAngs];
     %jointPosTotal = [jointPosTotal; jointPos];
     jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
-
+% 
     csvwrite('data/traj_9DOF_long.txt', trajTotal)
     csvwrite('data/jointPos_9DOF_long.txt',jointPosTotal) %only useful
 %     for training the network, needed for utils rotation func (should fix
 %     later for efficiency)
     csvwrite('data/jointPath_long.txt', jointPath);
+    
+%     csvwrite('data/traj_9DOF_1.txt', trajTotal)
+%     csvwrite('data/jointPos_9DOF_1.txt',jointPosTotal)
+%     csvwrite('data/jointPath.txt', jointPath);
 % 
 %     csvwrite('data/traj_9DOF_rel2start100k.txt', trajTotal)
 %     csvwrite('data/jointPos_9DOF_rel2start100k.txt',jointPosTotal)

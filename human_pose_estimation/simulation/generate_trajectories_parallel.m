@@ -1,12 +1,13 @@
 %TODO
-%   -> going to run into memory issues if we try to save every detail from
+%  x -> going to run into memory issues if we try to save every detail from
 %      every sim
 %       need to run 1000 or so sims and take the useful data from them then
 %       clear the outputs
-%   -> Need to make sure data coming from parsim is accurate and useful
-%   -> error handling
+%  x -> Need to make sure data coming from parsim is accurate and useful
+%  x -> error handling
 %       what to do when I skip a trial with an error and have a traj of all
 %       zeros?
+%  _-> Need to train on trajectories of NONZERO STARTING VELOCITY 
 
 
 beep off
@@ -111,9 +112,9 @@ while m <= (floor(numTraj/numSims))
         in(idx) = in(idx).setVariable('j8vi', j8vi);
 
 %         % case of random time varying forces
-%         A = 3*randn(3,1); %amplitude
-%         B = 10*randn(3,1); %frequency
-%         C = randn(3,1); %phase
+%         A = 3*randn(3,1);     %amplitude
+%         B = 10*randn(3,1);    %frequency
+%         C = randn(3,1);       %phase
 %         timevec = ((0:1000)/5)';
 %         fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
 %         fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
