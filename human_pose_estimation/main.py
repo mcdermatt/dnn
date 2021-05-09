@@ -26,25 +26,26 @@ tf.config.experimental.set_memory_growth(physical_devices[0], True)
 #load pretrained model
 model = tf.keras.models.load_model("10DOF.kmod")
 
-#import 5 second trajectory
+#import 10 second trajectory
 ft1 = "simulation/data/traj_9DOF_long.txt"
 ft2 = "simulation/data/jointPos_9DOF_long.txt"
 ft3 = "simulation/data/jointPath_long.txt"
 numTraj = 1 #number of trajectories given in base file
-runLen = 50 #5s @ 10pt/sec
-tTest, jointPosTest = add_body_rotation(ft1, ft2, numTraj, mult =1, actual_traj=ft3, numPts = runLen)
+runLen = 100 #10s @ 10pt/sec
+tTest, jointPosTest = add_body_rotation(ft1, ft2, numTraj, actual_traj=ft3, numPts = runLen)
 
 x_test = tf.convert_to_tensor(tTest, np.float32)
+# print("x_test shape", np.shape(x_test)) #(1,100,6)
 
-#for standard estimates (one every 10s)
-# estimate = np.zeros([(runLen//10),10])
-# for i in range(runLen//10):
-# 	estimate[i,:] = model.predict(x_test[:, (10*i):(10*(i+1)),:])
+#for standard estimates (one every 1s)
+estimate = np.zeros([(runLen//10),10])
+for i in range(runLen//10):
+	estimate[i,:] = model.predict(x_test[:, (10*i):(10*(i+1)),:])
 
 #for overlapping estimates
-estimate = np.zeros([(runLen-10),10])
-for i in range(runLen-10):
-	estimate[i,:] = model.predict(x_test[:, i:(i+10),:])
+# estimate = np.zeros([(runLen-10),10])
+# for i in range(runLen-10):
+# 	estimate[i,:] = model.predict(x_test[:, i:(i+10),:])
 
 print(estimate)
 print(np.shape(estimate))

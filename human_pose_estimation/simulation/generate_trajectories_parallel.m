@@ -10,6 +10,8 @@
 %  _-> Need to train on trajectories of NONZERO STARTING VELOCITY 
 
 
+%REMEMBER TO SET SIMULINK MODEL TO 2s
+
 beep off
 tic
 
@@ -20,9 +22,9 @@ trajTotal = zeros(trajPts,6,numTraj);
 % trajTotal = [];
 jointPosTotal = zeros(numTraj,9);
 % jointPosTotal = [];
-numSims = 2500;% Max number of simulations to be stored in RAM at a time
+numSims = 1000;% Max number of simulations to be stored in RAM at a time
 % can run 1000 sims in 146s (with 12 workers)
-angsRelativeToStart = true; %false means that angles of ball relative to world frame
+angsRelativeToStart = false; %false means that angles of ball relative to world frame
                              %true means angles of ball are relative to starting position
 
 
@@ -112,21 +114,21 @@ while m <= (floor(numTraj/numSims))
         in(idx) = in(idx).setVariable('j8vi', j8vi);
 
 %         % case of random time varying forces
-%         A = 3*randn(3,1);     %amplitude
-%         B = 10*randn(3,1);    %frequency
-%         C = randn(3,1);       %phase
-%         timevec = ((0:1000)/5)';
-%         fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
-%         fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
-%         fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
+        A = 3*randn(3,1);     %amplitude
+        B = 10*randn(3,1);    %frequency
+        C = randn(3,1);       %phase
+        timevec = ((0:1000)/5)';
+        fz = timeseries(A(1)*sin(B(2)*timevec + C(1)),timevec);
+        fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
+        fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
 
         %case of constant cartesian external forces (no gravity)
-        mult = 1;
-        fx = [0 mult*randn()];
+%         mult = 1;
+%         fx = [0 mult*randn()];
         in(idx) = in(idx).setVariable('fx', fx);
-        fy = [0 mult*randn()];
+%         fy = [0 mult*randn()];
         in(idx) = in(idx).setVariable('fy', fy);
-        fz = [0 mult*randn()];
+%         fz = [0 mult*randn()];
         in(idx) = in(idx).setVariable('fz', fz);   
     end
 
@@ -144,14 +146,27 @@ while m <= (floor(numTraj/numSims))
       % update traj (shape of traj is [10, 6, #trajs]) --------------
       % get array of xyz pts in trajectory
         for j = 1:trajPts
-            s = j*floor(length(simOutPar(i).x)/trajPts);
-            traj(j,:,i) = [simOutPar(i).x(s) simOutPar(i).y(s) simOutPar(i).z(s)];
-            trajAngs(j,:,i) = [simOutPar(i).ang(s,1) simOutPar(i).ang(s,2) simOutPar(i).ang(s,3)];
+            s = j*floor(length(simOutPar(i).x)/trajPts); %looking at all points
+%             s = j*floor(0.5*length(simOutPar(i).x)/trajPts) + floor(0.5*length(simOutPar(i).x)); %only looking at back half
+            
+            %default: looking at absolute positions (oculus)
+            %   SET MEASUREMENT TO WORLD FRAME
+%             traj(j,:,i) = [simOutPar(i).x(s) simOutPar(i).y(s) simOutPar(i).z(s)];
+%             trajAngs(j,:,i) = [simOutPar(i).ang(s,1) simOutPar(i).ang(s,2) simOutPar(i).ang(s,3)];
+
+            
+            %iPhone: 6 axis gyro/ acclerometer
+            %   Set measurement to follower(?)
+%             TODO: Figure out what to do about rotation with accelerometer
+%             data
+            traj(j,:,i) = [simOutPar(i).ax(s) simOutPar(i).ay(s) simOutPar(i).az(s)];
+            trajAngs(j,:,i) = [simOutPar(i).wx(s) simOutPar(i).wy(s) simOutPar(i).wz(s)];
+            
         end
         
         startPos = traj(1,:,i);
             
-        if angsRelativeToStart == true
+        if angsRelativeToStart == true %set false for iphone
             startAngs =trajAngs(1,:,i);
         else
             startAngs =[0 0 0];
@@ -175,11 +190,8 @@ while m <= (floor(numTraj/numSims))
     m = m+1;
     clearvars simOutPar
 
-%     csvwrite('data/traj_9DOF_500k.txt', trajTotal)
-%     csvwrite('data/jointPos_9DOF_500k.txt',jointPosTotal)
-
-    csvwrite('data/traj_9DOF_rel2start100k.txt', trajTotal)
-    csvwrite('data/jointPos_9DOF_rel2start100k.txt',jointPosTotal)
+    csvwrite('data/traj_9DOF_accelerometer.txt', trajTotal)
+    csvwrite('data/jointPos_9DOF_accelerometer.txt',jointPosTotal)
     
 end
 

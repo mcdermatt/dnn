@@ -66,8 +66,6 @@ def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, ac
 
 	Inputs: strings- file paths for traj and joint pos file locations
 
-	#TODO - use this as a cheat to get more data
-
 	'''
 	# numPts = number of individual points in each endpoint trajectory
 

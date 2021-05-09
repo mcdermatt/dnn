@@ -34,7 +34,7 @@ class viz:
 		self.est = estimate
 		# print(self.est)
 		self.lenPath = len(truePath)
-		# print("shape is" ,np.shape(self.truePath))
+		print("shape is" ,np.shape(self.truePath))
 
 		if use_GPU is False:
 			self.window = pyglet.window.Window(width=1280,height=720)
@@ -162,15 +162,16 @@ class viz:
 		# 								45 + self.truePath[-1,8],bodyRot, draw = False)
 
 		#periodically throughout traj
-		# step = int(np.ceil(self.i/60)*60)
-		# if step >= np.shape(self.est)[0]:
-		# 	step -= 1
-		step = self.i
+		step = int(np.ceil(self.i/60)*60) - 60
+		if step >= self.lenPath:
+			step = 0 
+		# step = self.i
 		pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[step,0], -self.truePath[step,1], self.truePath[step,2], self.truePath[step,3],
 										-self.truePath[step,4], -self.truePath[step,5], -self.truePath[step,6], -self.truePath[step,7],
 										45 + self.truePath[step,8],bodyRot, draw = False)
 
-		self.draw_estimates(pxPalm, pyPalm, pzPalm)
+		if step > 0:
+			self.draw_estimates(pxPalm, pyPalm, pzPalm)
 		
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 		
@@ -179,16 +180,18 @@ class viz:
 	def draw_estimates(self,pxPalm, pyPalm, pzPalm):
 
 		estPerSec = 1 # to account for offset since there are no estimates before t=1s
-		i = int(np.floor(self.i*np.shape(self.est)[0]/self.lenPath)) - estPerSec 
+		i = int(np.floor(self.i*np.shape(self.est)[0]/self.lenPath)) 
+
+		# print("drawing estimate # ", i)
 
 		# if i>=0: #if the sim is more than 1s in (time needed to make estimate)
 		# get estimate of human configuration from network - run once without draw to get position of hand relative to base
 		pxEst, pyEst, pzEst = self.human(0,0,0, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
 					-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=False, draw = False)
 
-		x = 0#pxPalm-pxEst 
-		y = 0#pyPalm-pyEst 
-		z = 0#pzPalm-pzEst 
+		x = pxPalm-pxEst 
+		y = pyPalm-pyEst 
+		z = pzPalm-pzEst 
 
 		self.human(x,y,z, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
 					-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
