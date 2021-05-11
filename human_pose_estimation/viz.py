@@ -28,8 +28,9 @@ class viz:
 	"""Human visualization class made using OpenGL
 	 .start() to run"""
 
-	def __init__(self, truePath, estimate, use_GPU = False):
+	def __init__(self, truePath, estimate, use_GPU = False, runFromMain = False):
 
+		self.run_from_main = runFromMain
 		self.truePath = truePath
 		self.est = estimate
 		# print(self.est)
@@ -156,23 +157,30 @@ class viz:
 		self.draw_endpoint(px,py,pz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False)
 
 		#get coords of final position of actual human
-		#at end of trajectory
-		# pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[-1,0], -self.truePath[-1,1], self.truePath[-1,2], self.truePath[-1,3],
-		# 								-self.truePath[-1,4], -self.truePath[-1,5], -self.truePath[-1,6], -self.truePath[-1,7],
-		# 								45 + self.truePath[-1,8],bodyRot, draw = False)
+		
 
-		#periodically throughout traj
-		step = int(np.ceil(self.i/60)*60) - 60
-		if step >= self.lenPath:
-			step = 0 
-		# step = self.i
-		pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[step,0], -self.truePath[step,1], self.truePath[step,2], self.truePath[step,3],
-										-self.truePath[step,4], -self.truePath[step,5], -self.truePath[step,6], -self.truePath[step,7],
-										45 + self.truePath[step,8],bodyRot, draw = False)
+		if self.run_from_main == True:
+			#periodically throughout traj
+			step = int(np.ceil(self.i/60)*60) - 60
+			if step >= self.lenPath:
+				step = 0 
+			# step = self.i
+			pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[step,0], -self.truePath[step,1], self.truePath[step,2], self.truePath[step,3],
+											-self.truePath[step,4], -self.truePath[step,5], -self.truePath[step,6], -self.truePath[step,7],
+											45 + self.truePath[step,8],bodyRot, draw = False)
 
-		if step > 0:
+			if step > 0:
+				self.draw_estimates(pxPalm, pyPalm, pzPalm)
+		
+	
+		else:
+			#at end of trajectory
+			pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[-1,0], -self.truePath[-1,1], self.truePath[-1,2], self.truePath[-1,3],
+											-self.truePath[-1,4], -self.truePath[-1,5], -self.truePath[-1,6], -self.truePath[-1,7],
+											45 + self.truePath[-1,8],bodyRot, draw = False)
 			self.draw_estimates(pxPalm, pyPalm, pzPalm)
 		
+
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 		
 		time.sleep(0.01)
@@ -181,6 +189,9 @@ class viz:
 
 		estPerSec = 1 # to account for offset since there are no estimates before t=1s
 		i = int(np.floor(self.i*np.shape(self.est)[0]/self.lenPath)) 
+
+		if self.run_from_main == True:
+			i -= 1
 
 		# print("drawing estimate # ", i)
 
@@ -195,34 +206,6 @@ class viz:
 
 		self.human(x,y,z, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
 					-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
-
-
-		#maybe run once in init, this does not scale for longer trajectories...
-		# for i in range(np.shape(self.est)[0]):
-		# 	#get estimate of human configuration from network - run once without draw to get position of hand relative to base
-		# 	pxEst, pyEst, pzEst = self.human(0,0,0, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
-		# 										-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=False, draw = False)
-
-		# 	self.estimate_hips[i,:] = [pxPalm - pxEst, pyPalm - pyEst, pzPalm - pzEst]
-
-		# 	#try: ignore this for now
-		# 	if (int(np.floor(self.i*np.shape(self.est)[0]/self.lenPath)) == i):
-		# 	# 	#run a second time, translating so the hand of the human is located at the end of the ball trajectory
-		# 	# 	self.human(pxPalm-pxEst, pyPalm-pyEst, pzPalm-pzEst, -self.est[i,0], -self.est[i,1], 
-		# 	# 		self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5], -self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
-
-		# 		#simple mean...
-		# 		# x = np.mean(self.estimate_hips, axis=0)[0]
-		# 		# y = np.mean(self.estimate_hips, axis=0)[1]
-		# 		# z = np.mean(self.estimate_hips, axis=0)[2]
-
-		# 		#actual vals needed to make estimated hand cross actual trajectory
-		# 		x = self.estimate_hips[i,0]
-		# 		y = self.estimate_hips[i,1]
-		# 		z = self.estimate_hips[i,2]
-
-		# 		self.human(x,y,z, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
-		# 											-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
 
 
 	def human(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = True):

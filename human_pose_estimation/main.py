@@ -30,25 +30,27 @@ model = tf.keras.models.load_model("10DOF.kmod")
 ft1 = "simulation/data/traj_9DOF_long.txt"
 ft2 = "simulation/data/jointPos_9DOF_long.txt"
 ft3 = "simulation/data/jointPath_long.txt"
-numTraj = 1 #number of trajectories given in base file
-runLen = 100 #10s @ 10pt/sec
-tTest, jointPosTest = add_body_rotation(ft1, ft2, numTraj, actual_traj=ft3, numPts = runLen)
+numTraj = 5 #number of trajectories given in base file
+runLen = 10 #1s @ 10pt/sec
+tTest, jointPosTest = add_body_rotation(ft1, ft2, numTraj, actual_traj=ft3, numPts = runLen, training = False)
+#setting training = False means every 1s incrament will be given the same rotation to represent real life trajectory
 
 x_test = tf.convert_to_tensor(tTest, np.float32)
-# print("x_test shape", np.shape(x_test)) #(1,100,6)
+print("x_test shape", np.shape(x_test)) #(1,100,6) on single long trajectory, (3, 10, 6) on split multiple trajectories
 
-#for standard estimates (one every 1s)
-estimate = np.zeros([(runLen//10),10])
-for i in range(runLen//10):
-	estimate[i,:] = model.predict(x_test[:, (10*i):(10*(i+1)),:])
+# #for fixed number of estimates (one every 1s)
+# estimate = np.zeros([(runLen//10),10])
+# for i in range(runLen//10):
+# 	estimate[i,:] = model.predict(x_test[:, (10*i):(10*(i+1)),:])
+
+#for estimates only on the onset of motion (hand starts at zero velocity) THIS IS HOW THE MODEL WAS TRAINED!!
+estimate = model.predict(x_test)
+print("estimate = ",estimate)
 
 #for overlapping estimates
 # estimate = np.zeros([(runLen-10),10])
 # for i in range(runLen-10):
 # 	estimate[i,:] = model.predict(x_test[:, i:(i+10),:])
-
-print(estimate)
-print(np.shape(estimate))
 
 #TODO: some type of moving average filter to smooth out estimates!!!!
 
@@ -58,7 +60,7 @@ actual_joint_trajectory = np.load("simulation/data/at.npy")
 #how the DNN thinks the human is configured #TODO: eventually predict this within this file
 # estimate = np.load("simulation/data/prediction.npy")
 
-viz = viz(actual_joint_trajectory, estimate, use_GPU=True)
+viz = viz(actual_joint_trajectory, estimate, use_GPU=True, runFromMain = True)
 viz.start()
 
 #pressing F can break out of loop (so we can change up trajectories and stuff)

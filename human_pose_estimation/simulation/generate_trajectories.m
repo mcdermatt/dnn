@@ -14,10 +14,10 @@
 
 
 beep off
-numTraj = 1;
+numTraj = 5;
 trajPerChunk = 1;
 ptsPerSec = 10; %polling of end effector state this many times per sec
-trajLength = 10; %number of secs to run traj (should match value in simulink)
+trajLength = 1; %number of secs to run traj (should match value in simulink)
 trajPts = trajLength*ptsPerSec; %number of points in each trajectory
 trajTotal = zeros(trajPts,6,numTraj);
 jointPosTotal = zeros(numTraj,9);
@@ -93,35 +93,35 @@ while m <= (floor(numTraj/trajPerChunk))
 %             fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
 %             
 %             %case of constant cartesian external forces (no gravity)
-%             mult = 1;
-%             fx = [0 mult*randn()];
-%             fy = [0 mult*randn()];
-%             fz = [0 mult*randn()];
+            mult = 1;
+            fx = [0 mult*randn()];
+            fy = [0 mult*randn()];
+            fz = [0 mult*randn()];
 
             %case of reversing cartesian external forces ---------------
             %   Want initial jolt and then negative jolt of equal magnitude
             %   halfway through
-            timeLen = 1;
-            timevec = ((0:0.1:100)/timeLen)';
-            %init time series structures
-            fx = timeseries(0,timevec);
-            fy = timeseries(0,timevec);
-            fz = timeseries(0,timevec); 
-
-            %loop through to make random point to point movements
-            for count = 1:10
-                mult = 3;
-                rx = mult*randn();
-                ry = mult*randn();
-                rz = mult*randn();
-                fx(1).Data(20*count-9) = rx;
-                fy(1).Data(20*count-9) = ry;
-                fz(1).Data(20*count-9) = rz;
-
-                fx(1).Data(20*count) = -rx;
-                fy(1).Data(20*count) = -ry;
-                fz(1).Data(20*count) = -rz;
-            end
+%             timeLen = 1;
+%             timevec = ((0:0.1:100)/timeLen)';
+%             %init time series structures
+%             fx = timeseries(0,timevec);
+%             fy = timeseries(0,timevec);
+%             fz = timeseries(0,timevec); 
+% 
+%             %loop through to make random point to point movements
+%             for count = 1:10
+%                 mult = 3;
+%                 rx = mult*randn();
+%                 ry = mult*randn();
+%                 rz = mult*randn();
+%                 fx(1).Data(20*count-9) = rx;
+%                 fy(1).Data(20*count-9) = ry;
+%                 fz(1).Data(20*count-9) = rz;
+% 
+%                 fx(1).Data(20*count) = -rx;
+%                 fy(1).Data(20*count) = -ry;
+%                 fz(1).Data(20*count) = -rz;
+%             end
 %           --------------------------------------------------------------           
             model = 'human9DOF';
             simOut = sim(model);
@@ -168,11 +168,11 @@ while m <= (floor(numTraj/trajPerChunk))
     %jointPosTotal = [jointPosTotal; jointPos];
     jointPosTotal(((m-1)*trajPerChunk+1):((m)*trajPerChunk),:) = jointPos;
 % 
-    csvwrite('data/traj_9DOF_long.txt', trajTotal)
-    csvwrite('data/jointPos_9DOF_long.txt',jointPosTotal) %only useful
-%     for training the network, needed for utils rotation func (should fix
-%     later for efficiency)
-    csvwrite('data/jointPath_long.txt', jointPath);
+%     csvwrite('data/traj_9DOF_long.txt', trajTotal)
+%     csvwrite('data/jointPos_9DOF_long.txt',jointPosTotal) %only useful
+% %     for training the network, needed for utils rotation func (should fix
+% %     later for efficiency)
+%     csvwrite('data/jointPath_long.txt', jointPath);
     
 %     csvwrite('data/traj_9DOF_1.txt', trajTotal)
 %     csvwrite('data/jointPos_9DOF_1.txt',jointPosTotal)
@@ -189,5 +189,3 @@ end
 
 
 toc
-
-%tes = load('data.mat', '-ASCII');

@@ -50,7 +50,7 @@ def mat2npEndpoint(file, numTraj = 2, trajPts = 10):
 
 	return t
 
-def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, actual_traj = None, numPts=10):
+def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, actual_traj = None, numPts=10, training = True):
 
 	''' Endpoint trajectory data from SimScape Multibody simulation assumes 
 		coordinate frame is relative to the hips of the human. This means that all
@@ -82,13 +82,18 @@ def add_body_rotation(endpoint_trajectory, joint_pos_file, numTraj, mult = 1, ac
 	if actual_traj:
 		at = mat2npJoints(actual_traj)
 
+	constRot = np.random.rand()*360 - 180
+
 	for i in range(numTraj*mult):
 		
 		t = traj[int(np.floor(i/mult))] #[x, y, z, thetax?, thetay?, thetaz?]
 		
 		j = joints[int(np.floor(i/mult))]
 
-		rotation = np.random.rand()*360 - 180
+		if training == False:
+			rotation = constRot
+		else:
+			rotation = np.random.rand()*360 - 180
 		rbody = R.from_euler('y', rotation, degrees = True)
 
 		#store rotation data with ground truth joint trajectory
