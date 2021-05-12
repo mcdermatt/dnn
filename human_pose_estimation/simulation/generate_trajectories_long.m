@@ -2,8 +2,8 @@
 %start pose of the next
 
 beep off
-numTraj = 5;
-trajPerChunk = 5;
+numTraj = 11;
+trajPerChunk = 11;
 ptsPerSec = 10; %polling of end effector state this many times per sec
 trajLength = 1;
 trajPts = trajLength*ptsPerSec; %number of points in each trajectory
@@ -71,7 +71,7 @@ while m <= (floor(numTraj/trajPerChunk))
             j8vi = 0;
 
             % case of random time varying forces
-            A = 2*randn(3,1); %amplitude
+            A = 5*randn(3,1); %amplitude
             B = 4*randn(3,1); %frequency
             C = randn(3,1); %phase
             timeLen = 5;
@@ -80,7 +80,7 @@ while m <= (floor(numTraj/trajPerChunk))
             fx = timeseries(A(2)*cos(B(2)*timevec + C(2)),timevec);
             fy = timeseries(A(3)*sin(B(3)*timevec + C(3)),timevec);
             
-%             %constant forces
+% %             %constant forces
 %             mult = 1;
 %             fx = [0 mult*randn()];
 %             fy = [0 mult*randn()];

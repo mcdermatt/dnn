@@ -27,10 +27,10 @@ tf.config.experimental.set_memory_growth(physical_devices[0], True)
 model = tf.keras.models.load_model("10DOF.kmod")
 
 #import 10 second trajectory
-ft1 = "simulation/data/traj_9DOF_long.txt"
-ft2 = "simulation/data/jointPos_9DOF_long.txt"
-ft3 = "simulation/data/jointPath_long.txt"
-numTraj = 5 #number of trajectories given in base file
+ft1 = "simulation/data/traj_9DOF_long_sin.txt"
+ft2 = "simulation/data/jointPos_9DOF_long_sin.txt"
+ft3 = "simulation/data/jointPath_long_sin.txt"
+numTraj = 11 #number of trajectories given in base file
 runLen = 10 #1s @ 10pt/sec
 tTest, jointPosTest = add_body_rotation(ft1, ft2, numTraj, actual_traj=ft3, numPts = runLen, training = False)
 #setting training = False means every 1s incrament will be given the same rotation to represent real life trajectory

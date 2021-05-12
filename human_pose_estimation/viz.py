@@ -89,6 +89,7 @@ class viz:
 		self.show_actual = False
 		self.show_estimate = False
 
+		#stores location of human hips by plugging in joint estimtes to forward kinematic model
 		self.estimate_hips = np.zeros([np.shape(self.est)[0],3])
 
 	def on_resize(self,width, height):
@@ -163,7 +164,7 @@ class viz:
 			#periodically throughout traj
 			step = int(np.ceil(self.i/60)*60) - 60
 			if step >= self.lenPath:
-				step = 0 
+				step = 0 #debug
 			# step = self.i
 			pxPalm, pyPalm, pzPalm = self.human(0,0,0, -self.truePath[step,0], -self.truePath[step,1], self.truePath[step,2], self.truePath[step,3],
 											-self.truePath[step,4], -self.truePath[step,5], -self.truePath[step,6], -self.truePath[step,7],
@@ -207,6 +208,9 @@ class viz:
 		self.human(x,y,z, -self.est[i,0], -self.est[i,1], self.est[i,2], self.est[i,3], -self.est[i,4], -self.est[i,5],
 					-self.est[i,6], -self.est[i,7], 45 + self.est[i,8], self.est[i,9], transparent=True, draw = self.show_estimate)
 
+		#estimates of human hip locations based on estimates from 
+		self.estimate_hips[i] = [x, y, z]
+		# print(self.estimate_hips)
 
 	def human(self, x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = True):
 		
@@ -474,6 +478,7 @@ class viz:
 
 		self.i += 1
 		if self.i == (self.lenPath - 1):
+			np.save("estimated_hip_location", self.estimate_hips)
 			self.i = 0 #loop
 
 	def start(self):
