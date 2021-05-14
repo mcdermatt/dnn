@@ -17,8 +17,8 @@ ax.set_ylim([-60,60])
 ax.set_ylabel("z error (in)")
 plt.plot(arr[:,0],arr[:,2],'b.')
 plt.plot(0,0,'r.')
-plt.title("Sinusoidal Force  MSE = %s" %mse)
+plt.title("Linear Force (untrained model) MSE = %s" %mse)
 
-outfile = "figures/sinforce2.png"
+outfile = "figures/linear_random_model.png"
 # plt.savefig(outfile)
 plt.show()

@@ -9,21 +9,6 @@ from pyglet.window import mouse
 from utils import *
 from scipy.spatial.transform import Rotation as R
 
-#TODO:
-#	   Forward Kinematics
-
-#			Make hand the base joint, place everything else relative to hand
-
-#			Get distance between endpoint and shoulder
-
-
-#	   Whole body rotation
-
-#			estimate joint positions twice, figure out what human orientation would work to allow such successive joint angles
-
-#			generate data normally, for each trial rotate all points about vertical y axis some random angle and save that angle as another joint angle?
-#				Re-train network with an additional param?
-
 class viz:
 	"""Human visualization class made using OpenGL
 	 .start() to run"""
@@ -154,6 +139,7 @@ class viz:
 
 		#draw actual human position
 		px, py, pz = self.human(x, y, z, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, transparent = False, draw = self.show_actual)
+
 		#draw ball in hand of human
 		self.draw_endpoint(px,py,pz, j0, j1, j2, j3, j4, j5, j6, j7, j8, bodyRot, wireframe = False)
 

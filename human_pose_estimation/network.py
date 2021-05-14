@@ -447,20 +447,15 @@ def NetTest(**kwargs):
     Test Network
     """
 
-    inputs = keras.Input(shape=(10,3))
+    inputs = keras.Input(shape=(10,6))
     
-    X = keras.layers.Flatten()(X)
+    X = keras.layers.Flatten()(inputs)
     X = keras.layers.Dense(units = 64, activation = 'relu')(X) 
     X = keras.layers.BatchNormalization()(X)
-    X = keras.layers.Dense(units = 64, activation = 'relu')(X) 
-    X = keras.layers.BatchNormalization()(X)
-    X = keras.layers.Dense(units = 64, activation = 'relu')(X) 
-    X = keras.layers.BatchNormalization()(X)
-    output = keras.layers.Dense(units=7, activation = 'tanh')(X)
+    output = keras.layers.Dense(units=10, activation = 'tanh')(X)
 
     #rescale output to the range of motion of each joint
-    output = output*tf.constant([25., 30., 33.75, 55. , 60., 180., 65.]) + tf.constant([0., 0., 26.25, -35., 30., 0., -65.])
-    #forgot a single negative sign...
+    output = output*tf.constant([25., 30., 33.75, 55. , 60., 180., 65., 90., 55., 360.]) + tf.constant([0., 0., 26.25, -35., 30., 0., -65., 0., 0., -180.])
 
     model = tf.keras.Model(inputs,output)
 

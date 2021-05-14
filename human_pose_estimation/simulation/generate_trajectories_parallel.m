@@ -151,16 +151,16 @@ while m <= (floor(numTraj/numSims))
             
             %default: looking at absolute positions (oculus)
             %   SET MEASUREMENT TO WORLD FRAME
-%             traj(j,:,i) = [simOutPar(i).x(s) simOutPar(i).y(s) simOutPar(i).z(s)];
-%             trajAngs(j,:,i) = [simOutPar(i).ang(s,1) simOutPar(i).ang(s,2) simOutPar(i).ang(s,3)];
+            traj(j,:,i) = [simOutPar(i).x(s) simOutPar(i).y(s) simOutPar(i).z(s)];
+            trajAngs(j,:,i) = [simOutPar(i).ang(s,1) simOutPar(i).ang(s,2) simOutPar(i).ang(s,3)];
 
             
             %iPhone: 6 axis gyro/ acclerometer
             %   Set measurement to follower(?)
 %             TODO: Figure out what to do about rotation with accelerometer
 %             data
-            traj(j,:,i) = [simOutPar(i).ax(s) simOutPar(i).ay(s) simOutPar(i).az(s)];
-            trajAngs(j,:,i) = [simOutPar(i).wx(s) simOutPar(i).wy(s) simOutPar(i).wz(s)];
+%             traj(j,:,i) = [simOutPar(i).ax(s) simOutPar(i).ay(s) simOutPar(i).az(s)];
+%             trajAngs(j,:,i) = [simOutPar(i).wx(s) simOutPar(i).wy(s) simOutPar(i).wz(s)];
             
         end
         
@@ -190,8 +190,8 @@ while m <= (floor(numTraj/numSims))
     m = m+1;
     clearvars simOutPar
 
-    csvwrite('data/traj_9DOF_accelerometer.txt', trajTotal)
-    csvwrite('data/jointPos_9DOF_accelerometer.txt',jointPosTotal)
+    csvwrite('data/traj_9DOF.txt', trajTotal)
+    csvwrite('data/jointPos_9DOF.txt',jointPosTotal)
     
 end
 
